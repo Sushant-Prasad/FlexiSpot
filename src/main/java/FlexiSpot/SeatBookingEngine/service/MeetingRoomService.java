@@ -13,7 +13,7 @@ public class MeetingRoomService {
     @Autowired
     private MeetingRoomRepo roomRepo;
 
-    //Get all available meeting rooms
+    // Get all available meeting rooms
     public List<MeetingRoom> getAllAvailableRooms() {
         return roomRepo.findByIsAvailableTrue();
     }
