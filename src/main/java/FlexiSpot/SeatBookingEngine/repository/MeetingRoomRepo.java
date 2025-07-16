@@ -12,7 +12,7 @@ public interface MeetingRoomRepo extends JpaRepository<MeetingRoom, Long> {
     //Get only available rooms
     List<MeetingRoom> findByIsAvailableTrue();
 
-    //filter by location, building, floor
+    //Filter by location, building, floor
     List<MeetingRoom> findByLocationAndBuildingAndFloorAndIsAvailableTrue(
             String location,
             String building,
