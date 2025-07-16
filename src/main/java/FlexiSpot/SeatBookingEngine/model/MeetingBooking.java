@@ -2,10 +2,10 @@ package FlexiSpot.SeatBookingEngine.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "meeting_bookings")
@@ -15,44 +15,56 @@ public class MeetingBooking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "User name is required")
-    private String userName;
+    // Associate the booking with a user
+    @NotNull(message = "User is required")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
+    // Meeting room for this booking
     @NotNull(message = "Meeting room is required")
-    @ManyToOne
-    @JoinColumn(name = "meeting_room_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "meeting_room_id", nullable = false)
     private MeetingRoom room;
 
+    // Booking date (cannot be in the past)
     @NotNull(message = "Booking date is required")
     @FutureOrPresent(message = "Booking date cannot be in the past")
+    @Column(name = "booking_date", nullable = false)
     private LocalDate date;
 
-    @NotBlank(message = "Time slot is required")
-    private String timeSlot; // Example: "10:00-11:00"
+    // Start and end time for the meeting
+    @NotNull(message = "Start time is required")
+    @Column(name = "start_time", nullable = false)
+    private LocalTime startTime;
 
-    //No-arg constructor
+    @NotNull(message = "End time is required")
+    @Column(name = "end_time", nullable = false)
+    private LocalTime endTime;
+
+    // === Constructors ===
     public MeetingBooking() {}
 
-    //All-args constructor
-    public MeetingBooking(Long id, String userName, MeetingRoom room, LocalDate date, String timeSlot) {
+    public MeetingBooking(Long id, User user, MeetingRoom room, LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.id = id;
-        this.userName = userName;
+        this.user = user;
         this.room = room;
         this.date = date;
-        this.timeSlot = timeSlot;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
-    //Getters and Setters
+    // === Getters and Setters ===
     public Long getId() {
         return id;
     }
 
-    public String getUserName() {
-        return userName;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public MeetingRoom getRoom() {
@@ -71,12 +83,19 @@ public class MeetingBooking {
         this.date = date;
     }
 
-    public String getTimeSlot() {
-        return timeSlot;
+    public LocalTime getStartTime() {
+        return startTime;
     }
 
-    public void setTimeSlot(String timeSlot) {
-        this.timeSlot = timeSlot;
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 }
-

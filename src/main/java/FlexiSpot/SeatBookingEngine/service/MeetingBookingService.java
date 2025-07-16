@@ -1,11 +1,14 @@
 package FlexiSpot.SeatBookingEngine.service;
 
 import FlexiSpot.SeatBookingEngine.model.MeetingBooking;
+import FlexiSpot.SeatBookingEngine.model.MeetingRoom;
 import FlexiSpot.SeatBookingEngine.repository.MeetingBookingRepo;
 import FlexiSpot.SeatBookingEngine.repository.MeetingRoomRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -17,32 +20,49 @@ public class MeetingBookingService {
     @Autowired
     private MeetingRoomRepo roomRepo;
 
-    //Book a meeting room
+    // ✅ Book a meeting room
     public MeetingBooking bookRoom(MeetingBooking booking) {
         Long roomId = booking.getRoom().getId();
+        LocalDate date = booking.getDate();
+        LocalTime startTime = booking.getStartTime();
+        LocalTime endTime = booking.getEndTime();
 
-        // Check if already booked for that slot
-        boolean alreadyBooked = !bookingRepo.findByRoomIdAndDateAndTimeSlot(
-                roomId, booking.getDate(), booking.getTimeSlot()).isEmpty();
+        // 🔐 Check for conflicts
+        boolean isConflict = !bookingRepo
+                .findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
+                        roomId, date, endTime, startTime
+                ).isEmpty();
 
-        if (alreadyBooked) {
-            throw new RuntimeException("Room already booked for this time slot.");
+        if (isConflict) {
+            throw new RuntimeException("Room already booked for the selected time.");
         }
 
-        //Proceed to book
+        // ✅ Mark room as unavailable
+        MeetingRoom room = roomRepo.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        room.setIsAvailable(false);
+        roomRepo.save(room);
+
         return bookingRepo.save(booking);
     }
 
-    //Cancel a booking
+    // ✅ Cancel a meeting room booking
     public void cancelBooking(Long bookingId) {
         MeetingBooking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        MeetingRoom room = booking.getRoom();
+
+        // ✅ Make room available again
+        room.setIsAvailable(true);
+        roomRepo.save(room);
+
         bookingRepo.delete(booking);
     }
 
-    //View all bookings
+    // ✅ Get all bookings
     public List<MeetingBooking> getAllBookings() {
         return bookingRepo.findAll();
     }
 }
-

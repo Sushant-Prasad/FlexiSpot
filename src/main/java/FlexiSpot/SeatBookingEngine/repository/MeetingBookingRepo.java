@@ -5,14 +5,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
 public interface MeetingBookingRepo extends JpaRepository<MeetingBooking, Long> {
 
-    //Get all bookings by date
+    // Get all bookings for a specific date
     List<MeetingBooking> findByDate(LocalDate date);
 
-    // Check if a room is already booked for the same date and time
-    List<MeetingBooking> findByRoomIdAndDateAndTimeSlot(Long roomId, LocalDate date, String timeSlot);
+    // Check for time conflict
+    List<MeetingBooking> findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
+            Long roomId,
+            LocalDate date,
+            LocalTime endTime,
+            LocalTime startTime
+    );
 }

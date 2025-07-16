@@ -7,6 +7,8 @@ import FlexiSpot.SeatBookingEngine.repository.SeatRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -18,33 +20,49 @@ public class BookingService {
     @Autowired
     private SeatRepo seatRepo;
 
-    //Book a seat
+    // Book a seat with time conflict validation and mark it unavailable
     public Booking bookSeat(Booking booking) {
-        Seat seat = seatRepo.findById(booking.getSeat().getId())
+        Long seatId = booking.getSeat().getId();
+        LocalDate date = booking.getDate();
+        LocalTime startTime = booking.getStartTime();
+        LocalTime endTime = booking.getEndTime();
+
+        // Check if seat exists
+        Seat seat = seatRepo.findById(seatId)
                 .orElseThrow(() -> new RuntimeException("Seat not found"));
 
-        if (!seat.getIsAvailable()) {
-            throw new RuntimeException("Seat is already booked");
+        // Check for time conflict
+        List<Booking> conflicts = bookingRepo
+                .findBySeatIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
+                        seatId, date, endTime, startTime
+                );
+
+        if (!conflicts.isEmpty()) {
+            throw new RuntimeException("Seat is already booked for the selected time slot.");
         }
 
-        seat.setIsAvailable(false); // Mark seat as booked
+        // Mark seat as unavailable
+        seat.setIsAvailable(false);
         seatRepo.save(seat);
+
         return bookingRepo.save(booking);
     }
 
-    //Cancel a booking
+    // Cancel booking and make seat available again
     public void cancelBooking(Long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         Seat seat = booking.getSeat();
-        seat.setIsAvailable(true); // Make seat available again
+
+        // Mark seat as available again
+        seat.setIsAvailable(true);
         seatRepo.save(seat);
 
         bookingRepo.delete(booking);
     }
 
-    //View all bookings
+    // Get all bookings
     public List<Booking> getAllBookings() {
         return bookingRepo.findAll();
     }

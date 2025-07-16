@@ -29,7 +29,7 @@ public class MeetingRoomController {
         return ResponseEntity.ok(roomService.getAllAvailableRooms());
     }
 
-    //Get all rooms (optional)
+    //Get all rooms
     @GetMapping("/all")
     public ResponseEntity<List<MeetingRoom>> getAllRooms() {
         return ResponseEntity.ok(roomService.getAllRooms());
