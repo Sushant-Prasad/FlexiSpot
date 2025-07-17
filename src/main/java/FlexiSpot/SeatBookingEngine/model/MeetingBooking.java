@@ -98,4 +98,8 @@ public class MeetingBooking {
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
+
+    public void setId(Long id) {
+        this.id=id;
+    }
 }

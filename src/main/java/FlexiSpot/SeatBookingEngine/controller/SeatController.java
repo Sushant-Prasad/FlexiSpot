@@ -27,6 +27,12 @@ public class SeatController {
         List<Seat> seats = seatRepo.findSeatsByFilters(location, building, floor, segment);
         return ResponseEntity.ok(seats);
     }
+    //Get all available seats
+    @GetMapping("/available")
+    public ResponseEntity<List<Seat>> getAvailableSeats() {
+        return ResponseEntity.ok(seatRepo.findByIsAvailableTrue());
+    }
+
 
     //Get all seats
     @GetMapping("/all")

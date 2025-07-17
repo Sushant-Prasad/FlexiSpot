@@ -26,29 +26,38 @@ public class User {
     @Column(length = 10)
     private String phoneNumber;
 
+    @NotBlank(message = "Password is required")
+    private String password;  // ✅ Added password field
+
     @NotBlank(message = "Role is required")
     private String role;
 
     @NotBlank(message = "Department is required")
     private String department;
 
-    // No-arg constructor
+    // === Constructors ===
+
     public User() {
     }
 
-    // All-args constructor
-    public User(Long id, String name, String email, String phoneNumber, String role, String department) {
+    public User(Long id, String name, String email, String phoneNumber, String password, String role, String department) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.password = password;
         this.role = role;
         this.department = department;
     }
 
-    // Getters and setters
+    // === Getters and Setters ===
+
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -73,6 +82,14 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getRole() {

@@ -94,4 +94,8 @@ public class Booking {
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
+
+    public void setId(Long id) {
+        this.id=id;
+    }
 }

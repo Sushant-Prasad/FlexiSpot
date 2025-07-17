@@ -16,10 +16,10 @@ public class MeetingRoom {
     private String floor;
     private Boolean isAvailable;
 
-    //No-arg constructor
+    // No-arg constructor
     public MeetingRoom() {}
 
-    //All-args constructor
+    // All-args constructor
     public MeetingRoom(Long id, String roomCode, String location, String building, String floor, Boolean isAvailable) {
         this.id = id;
         this.roomCode = roomCode;
@@ -29,9 +29,13 @@ public class MeetingRoom {
         this.isAvailable = isAvailable;
     }
 
-    //Getters and Setters
+    // Getters and Setters
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getRoomCode() {
@@ -70,8 +74,8 @@ public class MeetingRoom {
         return isAvailable;
     }
 
-    public void setIsAvailable(Boolean available) {
-        isAvailable = available;
+    public void setIsAvailable(Boolean isAvailable) {
+        this.isAvailable = isAvailable;
     }
-}
 
+}

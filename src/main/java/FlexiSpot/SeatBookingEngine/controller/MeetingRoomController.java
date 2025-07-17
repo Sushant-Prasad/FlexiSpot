@@ -10,23 +10,21 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/meeting-rooms")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000") // Enable CORS for React frontend
 public class MeetingRoomController {
 
     @Autowired
     private MeetingRoomService roomService;
 
-    //Get all available rooms
+    //Get all available meeting rooms with filters
     @GetMapping
     public ResponseEntity<List<MeetingRoom>> getAvailableRooms(
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String building,
             @RequestParam(required = false) String floor
     ) {
-        if (location != null && building != null && floor != null) {
-            return ResponseEntity.ok(roomService.getFilteredRooms(location, building, floor));
-        }
-        return ResponseEntity.ok(roomService.getAllAvailableRooms());
+        List<MeetingRoom> filteredRooms = roomService.getFilteredRooms(location, building, floor);
+        return ResponseEntity.ok(filteredRooms);
     }
 
     //Get all rooms
@@ -35,4 +33,3 @@ public class MeetingRoomController {
         return ResponseEntity.ok(roomService.getAllRooms());
     }
 }
-

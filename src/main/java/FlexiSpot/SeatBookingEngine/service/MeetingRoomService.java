@@ -13,14 +13,14 @@ public class MeetingRoomService {
     @Autowired
     private MeetingRoomRepo roomRepo;
 
-    // Get all available meeting rooms
+    //Get all available meeting rooms
     public List<MeetingRoom> getAllAvailableRooms() {
         return roomRepo.findByIsAvailableTrue();
     }
 
-    //Filter by location/building/floor
+    //Filter meeting rooms
     public List<MeetingRoom> getFilteredRooms(String location, String building, String floor) {
-        return roomRepo.findByLocationAndBuildingAndFloorAndIsAvailableTrue(location, building, floor);
+        return roomRepo.findRoomsByFilters(location, building, floor);
     }
 
     //Get all meeting rooms
@@ -28,4 +28,3 @@ public class MeetingRoomService {
         return roomRepo.findAll();
     }
 }
-

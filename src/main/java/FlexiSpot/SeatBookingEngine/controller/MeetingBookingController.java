@@ -1,6 +1,6 @@
 package FlexiSpot.SeatBookingEngine.controller;
 
-import FlexiSpot.SeatBookingEngine.model.MeetingBooking;
+import FlexiSpot.SeatBookingEngine.DTO.MeetingBookingDTO;
 import FlexiSpot.SeatBookingEngine.service.MeetingBookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,23 +16,24 @@ public class MeetingBookingController {
     @Autowired
     private MeetingBookingService bookingService;
 
-    //Book a meeting room
+    // Book a room
     @PostMapping
-    public ResponseEntity<MeetingBooking> bookRoom(@RequestBody MeetingBooking booking) {
-        return ResponseEntity.ok(bookingService.bookRoom(booking));
+    public ResponseEntity<MeetingBookingDTO> bookRoom(@RequestBody MeetingBookingDTO dto) {
+        MeetingBookingDTO saved = bookingService.bookRoom(dto);
+        return ResponseEntity.ok(saved);
     }
 
-    //Cancel a booking
+    //Get all bookings
+    @GetMapping
+    public ResponseEntity<List<MeetingBookingDTO>> getAllRoomBookings() {
+        List<MeetingBookingDTO> bookings = bookingService.getAllBookings();
+        return ResponseEntity.ok(bookings);
+    }
+
+    // Cancel booking
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelBooking(@PathVariable Long id) {
+    public ResponseEntity<Void> cancelRoomBooking(@PathVariable Long id) {
         bookingService.cancelBooking(id);
         return ResponseEntity.noContent().build();
     }
-
-    //View all bookings
-    @GetMapping
-    public ResponseEntity<List<MeetingBooking>> getAllBookings() {
-        return ResponseEntity.ok(bookingService.getAllBookings());
-    }
 }
-

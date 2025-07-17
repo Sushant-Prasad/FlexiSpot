@@ -97,4 +97,9 @@ public class Seat {
     public void setIsAvailable(Boolean available) {
         isAvailable = available;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 }
