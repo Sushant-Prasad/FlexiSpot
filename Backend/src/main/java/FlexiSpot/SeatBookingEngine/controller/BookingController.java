@@ -46,7 +46,7 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAvailableSeatsOnDate(localDate));
     }
 
-    //Get all bookings
+    // Get all bookings
     @GetMapping
     public ResponseEntity<List<BookingDTO>> getAllBookings() {
         List<Booking> bookings = bookingService.getAllBookings();
