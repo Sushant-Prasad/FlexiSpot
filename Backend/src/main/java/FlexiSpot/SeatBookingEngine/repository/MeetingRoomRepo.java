@@ -11,12 +11,12 @@ import java.util.List;
 @Repository
 public interface MeetingRoomRepo extends JpaRepository<MeetingRoom, Long> {
 
-    // Get only available rooms
+    // ✅ Get only available rooms
     List<MeetingRoom> findByIsAvailableTrue();
 
-    // Flexible filtering like SeatRepo
-    @Query("SELECT m FROM MeetingRoom m WHERE m.isAvailable = true " +
-            "AND (:location IS NULL OR m.location = :location) " +
+    // ✅ Get rooms by optional filters (returns both available and booked rooms)
+    @Query("SELECT m FROM MeetingRoom m " +
+            "WHERE (:location IS NULL OR m.location = :location) " +
             "AND (:building IS NULL OR m.building = :building) " +
             "AND (:floor IS NULL OR m.floor = :floor)")
     List<MeetingRoom> findRoomsByFilters(@Param("location") String location,

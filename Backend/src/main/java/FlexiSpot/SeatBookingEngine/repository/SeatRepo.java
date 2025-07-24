@@ -11,12 +11,12 @@ import java.util.List;
 @Repository
 public interface SeatRepo extends JpaRepository<Seat, Long> {
 
-    //Get only available seats
+    // ✅ Get only available seats
     List<Seat> findByIsAvailableTrue();
 
-    //filter by location, building, floor, segment
-    @Query("SELECT s FROM Seat s WHERE s.isAvailable = true " +
-            "AND (:location IS NULL OR s.location = :location) " +
+    // ✅ Get seats by optional filters (returns both available and booked seats)
+    @Query("SELECT s FROM Seat s " +
+            "WHERE (:location IS NULL OR s.location = :location) " +
             "AND (:building IS NULL OR s.building = :building) " +
             "AND (:floor IS NULL OR s.floor = :floor) " +
             "AND (:segment IS NULL OR s.segment = :segment)")
@@ -24,5 +24,4 @@ public interface SeatRepo extends JpaRepository<Seat, Long> {
                                   @Param("building") String building,
                                   @Param("floor") String floor,
                                   @Param("segment") String segment);
-
 }
