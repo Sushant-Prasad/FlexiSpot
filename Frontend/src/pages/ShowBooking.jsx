@@ -4,7 +4,7 @@ import { getAllMeetingBookings, cancelMeetingBooking } from "../services/meetinR
 import dayjs from "dayjs";
 
 const ShowBooking = () => {
-  const userId = 2; // ✅ Hardcoded user ID
+  const userId = 2; // Hardcoded user ID
   const [allBookings, setAllBookings] = useState([]);
 
   const fetchBookings = async () => {

@@ -14,7 +14,7 @@ const BookNow = () => {
   const [selectedItem, setSelectedItem] = useState(null); // seat or room
   const [showForm, setShowForm] = useState(false);
 
-  // ✅ Fetch data based on filters
+  //Fetch data based on filters
   const handleSidebarSearch = async (filters) => {
     setSelectedType(filters.type);
     setSelectedDate(filters.date);
@@ -51,7 +51,7 @@ const BookNow = () => {
   // ✅ Handle booking submission
   const handleBookingSubmit = async (bookingData) => {
     try {
-      await bookSeat(bookingData); // same API used for room/seat
+      await bookSeat(bookingData); 
       alert("Booking successful!");
       setShowForm(false);
       setSelectedItem(null);
@@ -89,7 +89,7 @@ const BookNow = () => {
         )}
       </div>
 
-      {/* ✅ Unified booking form for seat or room */}
+      
       {showForm && selectedItem && (
         <BookingForm
           itemId={selectedItem.id}
