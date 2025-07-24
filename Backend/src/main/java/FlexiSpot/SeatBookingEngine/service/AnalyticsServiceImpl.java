@@ -4,8 +4,6 @@ import FlexiSpot.SeatBookingEngine.model.Booking;
 import FlexiSpot.SeatBookingEngine.model.MeetingBooking;
 import FlexiSpot.SeatBookingEngine.repository.MeetingRoomRepo;
 import FlexiSpot.SeatBookingEngine.repository.SeatRepo;
-import FlexiSpot.SeatBookingEngine.service.AnalyticsService;
-import FlexiSpot.SeatBookingEngine.service.EmailService;
 
 import FlexiSpot.SeatBookingEngine.model.Seat;
 import FlexiSpot.SeatBookingEngine.model.MeetingRoom;
@@ -13,7 +11,7 @@ import FlexiSpot.SeatBookingEngine.model.User;
 
 import FlexiSpot.SeatBookingEngine.repository.BookingRepository;
 import FlexiSpot.SeatBookingEngine.repository.MeetingBookingRepo;
-;
+
 import FlexiSpot.SeatBookingEngine.repository.UserRepo;
 
 import jakarta.servlet.http.HttpServletResponse;

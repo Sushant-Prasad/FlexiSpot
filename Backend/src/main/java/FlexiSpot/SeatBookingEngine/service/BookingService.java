@@ -3,7 +3,7 @@ package FlexiSpot.SeatBookingEngine.service;
 import FlexiSpot.SeatBookingEngine.model.Booking;
 import FlexiSpot.SeatBookingEngine.model.Seat;
 import FlexiSpot.SeatBookingEngine.model.User;
-import FlexiSpot.SeatBookingEngine.repository.BookingRepo;
+import FlexiSpot.SeatBookingEngine.repository.BookingRepository;
 import FlexiSpot.SeatBookingEngine.repository.SeatRepo;
 import FlexiSpot.SeatBookingEngine.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class BookingService {
 
     @Autowired
-    private BookingRepo bookingRepo;
+    private BookingRepository bookingRepo;
 
     @Autowired
     private SeatRepo seatRepo;
