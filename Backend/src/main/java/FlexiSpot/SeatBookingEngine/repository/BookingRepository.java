@@ -8,20 +8,28 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-@Repository
-public interface BookingRepo extends JpaRepository<Booking, Long> {
 
-    // Get bookings by date
+@Repository
+public interface BookingRepository extends JpaRepository<Booking, Long> {
+    // Bookings for a specific date
     List<Booking> findByDate(LocalDate date);
 
-    // Get all bookings for a seat on a specific date
+    // Bookings for a date range (for usage heatmap)
+    List<Booking> findByDateBetween(LocalDate start, LocalDate end);
+
+    // Bookings for a specific seat+date, for conflict check
     List<Booking> findBySeatIdAndDate(Long seatId, LocalDate date);
 
-    // Check for overlapping bookings
+    // Check for time conflicts
     List<Booking> findBySeatIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
             Long seatId,
             LocalDate date,
-            LocalTime endTime,
-            LocalTime startTime
+            java.time.LocalTime endTime,
+            java.time.LocalTime startTime
     );
+
+
+
 }
+
+

@@ -10,15 +10,19 @@ import java.util.List;
 
 @Repository
 public interface MeetingBookingRepo extends JpaRepository<MeetingBooking, Long> {
-
-    // Get all bookings for a specific date
+    // All bookings for a date
     List<MeetingBooking> findByDate(LocalDate date);
 
-    // Check for time conflict
+    // All bookings for a date range (for usage analytics)
+    List<MeetingBooking> findByDateBetween(LocalDate start, LocalDate end);
+
+
+    // For time conflict check
     List<MeetingBooking> findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
             Long roomId,
             LocalDate date,
-            LocalTime endTime,
-            LocalTime startTime
+            java.time.LocalTime endTime,
+            java.time.LocalTime startTime
     );
 }
+
