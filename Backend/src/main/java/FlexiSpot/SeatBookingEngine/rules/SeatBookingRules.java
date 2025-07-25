@@ -42,7 +42,7 @@ public class SeatBookingRules {
 
         // Rule 6: Only one booking per user per day
         for (Booking existing : existingBookings) {
-            if (existing.getEmail().equals(booking.getEmail()) && existing.getDate().equals(date)) {
+            if (existing.getUser().getEmail().equals(booking.getUser().getEmail())) && existing.getDate().equals(date)) {
                 throw new RuntimeException("Only one booking per user per day is allowed.");
             }
 
@@ -52,6 +52,13 @@ public class SeatBookingRules {
                 if (overlaps) {
                     throw new RuntimeException("Overlapping booking exists for this seat.");
                 }
+            }
+            
+            // Rule 8: Prevent same seat booked by the same user multiple times even if time doesnt overlap
+            if (existing.getUser().getEmail().equals(booking.getUser().getEmail())) &&
+                existing.getSeatNumber().equals(booking.getSeatNumber()) &&
+                existing.getDate().equals(date)) {
+                throw new RuntimeException("Cannot book the same seat multiple times on the same day.");
             }
         }
     }
