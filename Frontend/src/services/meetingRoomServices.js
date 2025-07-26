@@ -1,6 +1,6 @@
 const BASE_URL = 'http://localhost:8080/api/meeting-rooms';
 
-// ✅ Get all meeting rooms
+// Get all meeting rooms
 export const getAllMeetingRooms = async () => {
   const res = await fetch(`${BASE_URL}/all`, {
     method: 'GET',
@@ -10,7 +10,7 @@ export const getAllMeetingRooms = async () => {
   return res.json();
 };
 
-// ✅ Get filtered meeting rooms (by location/building/floor)
+// Get filtered meeting rooms (by location/building/floor)
 export const getFilteredMeetingRooms = async ({ location, building, floor }) => {
   const queryParams = new URLSearchParams();
   if (location) queryParams.append('location', location);

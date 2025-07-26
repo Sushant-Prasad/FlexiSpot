@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { getAllBookings, cancelBooking } from "../services/bookingServices";
-import { getAllMeetingBookings, cancelMeetingBooking } from "../services/meetinRoomBookingServices";
+import { cancelBooking, getAllBookings } from "../services/bookingServices";
+import { cancelMeetingBooking, getAllMeetingBookings } from "../services/meetinRoomBookingServices";
 import dayjs from "dayjs";
+import clsx from "clsx";
+import { toast } from "react-hot-toast";
+
 
 const ShowBooking = () => {
   const userId = 2; // Hardcoded user ID
@@ -12,7 +15,6 @@ const ShowBooking = () => {
       const seatBookings = await getAllBookings();
       const meetingBookings = await getAllMeetingBookings();
 
-      // Merge and normalize data
       const formattedSeatBookings = seatBookings
         .filter((b) => b.userId === userId)
         .map((b) => ({ ...b, type: "seat" }));
@@ -21,26 +23,12 @@ const ShowBooking = () => {
         .filter((b) => b.userId === userId)
         .map((b) => ({ ...b, type: "meeting" }));
 
-      setAllBookings([...formattedSeatBookings, ...formattedMeetingBookings]);
-    } catch (err) {
-      console.error("Failed to load bookings", err);
-    }
-  };
+      const all = [...formattedSeatBookings, ...formattedMeetingBookings];
 
-  const handleCancel = async (booking) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-
-    try {
-      if (booking.type === "seat") {
-        await cancelBooking(booking.id);
-      } else {
-        await cancelMeetingBooking(booking.id);
-      }
-      alert("Booking cancelled successfully.");
-      fetchBookings();
+      // Sort by date desc
+      setAllBookings(all.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()));
     } catch (err) {
-      alert("Failed to cancel booking.");
-      console.error(err);
+      console.error("❌ Failed to fetch bookings", err);
     }
   };
 
@@ -48,31 +36,89 @@ const ShowBooking = () => {
     fetchBookings();
   }, []);
 
+ const handleCancel = async (booking) => {
+  if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+
+  try {
+    if (booking.type === "seat") {
+      await cancelBooking(booking.id);
+    } else {
+      await cancelMeetingBooking(booking.id);
+    }
+    toast.success("Booking cancelled successfully.");
+    fetchBookings();
+  } catch (err) {
+    toast.error("❌ Failed to cancel booking.");
+    console.error(err);
+  }
+};
+
+
   const now = dayjs();
 
-  const pastBookings = allBookings.filter((b) => dayjs(b.date).isBefore(now, "day"));
-  const currentBookings = allBookings.filter((b) => !dayjs(b.date).isBefore(now, "day"));
+  // Booking is expired if the date+endTime is before now and it's marked EXPIRED
+  const isExpired = (booking) => {
+    const bookingEnd = dayjs(`${booking.date}T${booking.endTime}`);
+    return booking.status === "EXPIRED" && bookingEnd.isBefore(now);
+  };
 
-  const renderBookingCard = (booking, isPast = false) => (
-    <div key={`${booking.type}-${booking.id}`} className="p-4 border rounded shadow bg-white space-y-1">
-      <p><strong>Type:</strong> {booking.type === "seat" ? "Seat Booking" : "Meeting Room"}</p>
-      <p>
-        <strong>{booking.type === "seat" ? "Seat Code" : "Meeting Room Code"}:</strong>{" "}
-        {booking.seatCode || booking.meetingRoomCode}
-      </p>
-      <p><strong>Name:</strong> {booking.userName}</p>
-      <p><strong>Date:</strong> {booking.date}</p>
-      <p><strong>Time:</strong> {booking.startTime} - {booking.endTime}</p>
-      {!isPast && (
-        <button
-          onClick={() => handleCancel(booking)}
-          className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Cancel Booking
-        </button>
-      )}
-    </div>
+  const currentBookings = allBookings.filter(
+    (b) => b.status === "ACTIVE" && !isExpired(b)
   );
+
+  const pastBookings = allBookings.filter(
+    (b) => b.status === "CANCELLED" || isExpired(b)
+  );
+
+  const renderBookingCard = (booking, isPast = false) => {
+    const expired = isExpired(booking);
+    const isCancelled = booking.status === "CANCELLED";
+
+    let badgeText = "Active";
+    let badgeColor = "bg-green-500";
+
+    if (isCancelled) {
+      badgeText = "Cancelled";
+      badgeColor = "bg-red-500";
+    } else if (expired) {
+      badgeText = "Expired";
+      badgeColor = "bg-slate-500";
+    }
+
+    return (
+      <div
+        key={`${booking.type}-${booking.id}`}
+        className="p-4 border rounded shadow bg-white space-y-1 relative"
+      >
+        <span
+          className={clsx(
+            "absolute top-2 right-2 px-2 py-1 text-xs text-white rounded",
+            badgeColor
+          )}
+        >
+          {badgeText}
+        </span>
+
+        <p><strong>Type:</strong> {booking.type === "seat" ? "Seat Booking" : "Meeting Room"}</p>
+        <p>
+          <strong>{booking.type === "seat" ? "Seat Code" : "Meeting Room Code"}:</strong>{" "}
+          {booking.seatCode || booking.meetingRoomCode}
+        </p>
+        <p><strong>Name:</strong> {booking.userName}</p>
+        <p><strong>Date:</strong> {dayjs(booking.date).format("DD MMM YYYY")}</p>
+        <p><strong>Time:</strong> {booking.startTime} - {booking.endTime}</p>
+
+        {!isPast && !isCancelled && !expired && (
+          <button
+            onClick={() => handleCancel(booking)}
+            className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Cancel Booking
+          </button>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-10">

@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/seats")
-@CrossOrigin(origins = "http://localhost:3000") // Allow React frontend access
+@CrossOrigin(origins = "http://localhost:3000")
 public class SeatController {
 
     @Autowired

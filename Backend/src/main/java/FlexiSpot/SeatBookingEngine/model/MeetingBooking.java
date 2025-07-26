@@ -1,5 +1,6 @@
 package FlexiSpot.SeatBookingEngine.model;
 
+import FlexiSpot.SeatBookingEngine.validation.OnUserBooking;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +21,10 @@ public class MeetingBooking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private BookingStatus status;
+
 
     // Meeting room for this booking
     @NotNull(message = "Meeting room is required")
@@ -31,6 +36,7 @@ public class MeetingBooking {
     @NotNull(message = "Booking date is required")
     @FutureOrPresent(message = "Booking date cannot be in the past")
     @Column(name = "booking_date", nullable = false)
+    @FutureOrPresent(message = "Booking date cannot be in the past", groups = OnUserBooking.class)
     private LocalDate date;
 
     // Start and end time for the meeting
@@ -102,4 +108,12 @@ public class MeetingBooking {
     public void setId(Long id) {
         this.id=id;
     }
+    public BookingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookingStatus status) {
+        this.status = status;
+    }
+
 }

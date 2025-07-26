@@ -1,6 +1,6 @@
 const BASE_URL = 'http://localhost:8080/api/seats';
 
-// ✅ Get all available seats
+// Get all available seats
 export const getAvailableSeats = async () => {
   const res = await fetch(`${BASE_URL}/available`, {
     method: 'GET',
@@ -10,7 +10,7 @@ export const getAvailableSeats = async () => {
   return res.json();
 };
 
-// ✅ Get all seats (no filters)
+// Get all seats (no filters)
 export const getAllSeats = async () => {
   const res = await fetch(`${BASE_URL}/all`, {
     method: 'GET',
@@ -20,7 +20,7 @@ export const getAllSeats = async () => {
   return res.json();
 };
 
-// ✅ Get filtered seats by location/building/floor/segment
+//Get filtered seats by location/building/floor/segment
 export const getFilteredSeats = async ({ location, building, floor, segment }) => {
   const queryParams = new URLSearchParams();
 

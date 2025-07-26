@@ -1,2 +1,3 @@
-package FlexiSpot.SeatBookingEngine.validation;public interface OnUserBooking {
-}
+package FlexiSpot.SeatBookingEngine.validation;
+
+public interface OnUserBooking {}

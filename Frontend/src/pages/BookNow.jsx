@@ -1,11 +1,13 @@
 import { useState } from "react";
 import Sidebar from "../components/SeatBookingEngine/Sidebar";
-import { getFilteredSeats } from "../services/seatservices";
+import { getFilteredSeats } from "../services/seatServices";
 import { getFilteredMeetingRooms } from "../services/meetingRoomServices";
 import { bookSeat } from "../services/bookingServices";
+import { bookMeetingRoom } from "../services/meetinRoomBookingServices";
 import SeatCard from "../components/SeatBookingEngine/SeatCard";
 import MeetingRoomCard from "../components/SeatBookingEngine/MeetingRoomCard";
 import BookingForm from "../components/SeatBookingEngine/BookingForm";
+import toast from "react-hot-toast";
 
 const BookNow = () => {
   const [filteredData, setFilteredData] = useState([]);
@@ -13,11 +15,13 @@ const BookNow = () => {
   const [selectedDate, setSelectedDate] = useState(""); // from sidebar
   const [selectedItem, setSelectedItem] = useState(null); // seat or room
   const [showForm, setShowForm] = useState(false);
+  const [lastFilters, setLastFilters] = useState(null); //Store last filter
 
-  //Fetch data based on filters
+  // Fetch data based on filters
   const handleSidebarSearch = async (filters) => {
     setSelectedType(filters.type);
     setSelectedDate(filters.date);
+    setLastFilters(filters);
 
     try {
       if (filters.type === "seat") {
@@ -42,22 +46,31 @@ const BookNow = () => {
     }
   };
 
-  // ✅ Show booking form for seat or room
+  // Show booking form
   const handleBookNow = (item) => {
     setSelectedItem(item);
     setShowForm(true);
   };
 
-  // ✅ Handle booking submission
+  // Handle seat or meeting room booking
   const handleBookingSubmit = async (bookingData) => {
     try {
-      await bookSeat(bookingData); 
-      alert("Booking successful!");
+      if (selectedType === "seat") {
+        await bookSeat(bookingData);
+      } else if (selectedType === "room") {
+        await bookMeetingRoom(bookingData);
+      }
+
+      toast.success("Booking successful!");
       setShowForm(false);
       setSelectedItem(null);
+
+      if (lastFilters) {
+        await handleSidebarSearch(lastFilters);
+      }
     } catch (err) {
       console.error("Booking failed:", err);
-      alert("Booking failed.");
+      toast.error("Booking failed.");
     }
   };
 
@@ -89,11 +102,10 @@ const BookNow = () => {
         )}
       </div>
 
-      
       {showForm && selectedItem && (
         <BookingForm
           itemId={selectedItem.id}
-          itemType={selectedType} // "seat" or "room"
+          itemType={selectedType}
           userId={2}
           defaultDate={selectedDate}
           onSubmit={handleBookingSubmit}

@@ -11,10 +11,10 @@ import java.util.List;
 @Repository
 public interface SeatRepo extends JpaRepository<Seat, Long> {
 
-    // ✅ Get only available seats
+    // Get only available seats
     List<Seat> findByIsAvailableTrue();
 
-    // ✅ Get seats by optional filters (returns both available and booked seats)
+    // Get seats by optional filters (returns both available and booked seats)
     @Query("SELECT s FROM Seat s " +
             "WHERE (:location IS NULL OR s.location = :location) " +
             "AND (:building IS NULL OR s.building = :building) " +

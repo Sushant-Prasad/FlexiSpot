@@ -2,6 +2,7 @@ package FlexiSpot.SeatBookingEngine.mapper;
 
 import FlexiSpot.SeatBookingEngine.DTO.BookingDTO;
 import FlexiSpot.SeatBookingEngine.model.Booking;
+import FlexiSpot.SeatBookingEngine.model.BookingStatus;
 import FlexiSpot.SeatBookingEngine.model.Seat;
 import FlexiSpot.SeatBookingEngine.model.User;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ public class BookingMapper {
 
         if (booking.getUser() != null) {
             dto.setUserId(booking.getUser().getId());
-            dto.setUserName(booking.getUser().getName()); // Assuming `getName()` exists
+            dto.setUserName(booking.getUser().getName());
         }
 
         if (booking.getSeat() != null) {
@@ -28,6 +29,7 @@ public class BookingMapper {
         dto.setDate(booking.getDate());
         dto.setStartTime(booking.getStartTime());
         dto.setEndTime(booking.getEndTime());
+        dto.setStatus(booking.getStatus());
 
         return dto;
     }
@@ -37,10 +39,10 @@ public class BookingMapper {
 
         Booking booking = new Booking();
 
+        booking.setId(dto.getId());
         booking.setDate(dto.getDate());
         booking.setStartTime(dto.getStartTime());
         booking.setEndTime(dto.getEndTime());
-        booking.setId(dto.getId());
 
         if (dto.getUserId() != null) {
             User user = new User();
@@ -52,6 +54,10 @@ public class BookingMapper {
             Seat seat = new Seat();
             seat.setId(dto.getSeatId());
             booking.setSeat(seat);
+        }
+
+        if (dto.getStatus() != null) {
+            booking.setStatus(dto.getStatus());
         }
 
         return booking;

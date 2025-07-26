@@ -4,7 +4,7 @@ const Navbar = () => {
   return (
     <nav className="bg-gray-800 text-white px-6 py-4 flex justify-between items-center shadow-md">
       <div className="text-2xl font-bold">
-        <Link to="/">FlexiSpot</Link>
+        <Link to="/">Flexi<span className="text-yellow-400">Spot</span></Link>
       </div>
       <div className="space-x-6 text-lg">
         <Link to="/" className="hover:text-yellow-400 transition">Home</Link>

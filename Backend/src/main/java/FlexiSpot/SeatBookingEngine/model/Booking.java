@@ -1,5 +1,6 @@
 package FlexiSpot.SeatBookingEngine.model;
 
+import FlexiSpot.SeatBookingEngine.validation.OnUserBooking;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
@@ -26,8 +27,8 @@ public class Booking {
     private Seat seat;
 
     @NotNull(message = "Booking date is required")
-    @FutureOrPresent(message = "Booking date cannot be in the past")
     @Column(name = "booking_date", nullable = false)
+    @FutureOrPresent(message = "Booking date cannot be in the past", groups = OnUserBooking.class)
     private LocalDate date;
 
     @NotNull(message = "Start time is required")
@@ -38,21 +39,30 @@ public class Booking {
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private BookingStatus status;
+
     // Constructors
     public Booking() {}
 
-    public Booking(Long id, User user, Seat seat, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public Booking(Long id, User user, Seat seat, LocalDate date, LocalTime startTime, LocalTime endTime, BookingStatus status) {
         this.id = id;
         this.user = user;
         this.seat = seat;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.status = status;
     }
 
     // Getters and Setters
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public User getUser() {
@@ -95,7 +105,11 @@ public class Booking {
         this.endTime = endTime;
     }
 
-    public void setId(Long id) {
-        this.id=id;
+    public BookingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookingStatus status) {
+        this.status = status;
     }
 }

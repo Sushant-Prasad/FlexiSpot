@@ -23,12 +23,14 @@ public class MeetingBookingMapper {
         if (booking.getRoom() != null) {
             dto.setMeetingRoomId(booking.getRoom().getId());
             dto.setMeetingRoomCode(booking.getRoom().getRoomCode());
-
         }
 
         dto.setDate(booking.getDate());
         dto.setStartTime(booking.getStartTime());
         dto.setEndTime(booking.getEndTime());
+
+        //Set booking status
+        dto.setStatus(booking.getStatus());
 
         return dto;
     }
@@ -54,7 +56,9 @@ public class MeetingBookingMapper {
             booking.setRoom(room);
         }
 
+        // Set booking status
+        booking.setStatus(dto.getStatus());
+
         return booking;
     }
 }
-

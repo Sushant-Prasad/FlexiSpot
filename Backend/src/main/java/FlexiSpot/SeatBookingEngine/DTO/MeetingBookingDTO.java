@@ -1,5 +1,7 @@
 package FlexiSpot.SeatBookingEngine.DTO;
 
+import FlexiSpot.SeatBookingEngine.model.BookingStatus;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -17,12 +19,15 @@ public class MeetingBookingDTO {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    //Constructors
+    private BookingStatus status;
+
+    // === Constructors ===
     public MeetingBookingDTO() {}
 
     public MeetingBookingDTO(Long id, Long userId, String userName,
                              Long meetingRoomId, String meetingRoomCode,
-                             LocalDate date, LocalTime startTime, LocalTime endTime) {
+                             LocalDate date, LocalTime startTime,
+                             LocalTime endTime, BookingStatus status) {
         this.id = id;
         this.userId = userId;
         this.userName = userName;
@@ -31,9 +36,10 @@ public class MeetingBookingDTO {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.status = status;
     }
 
-    //Getters and Setters
+    // === Getters and Setters ===
     public Long getId() {
         return id;
     }
@@ -96,5 +102,13 @@ public class MeetingBookingDTO {
 
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
+    }
+
+    public BookingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookingStatus status) {
+        this.status = status;
     }
 }
