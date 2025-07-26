@@ -28,7 +28,7 @@ const ShowBooking = () => {
       // Sort by date desc
       setAllBookings(all.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()));
     } catch (err) {
-      console.error("❌ Failed to fetch bookings", err);
+      console.error(" Failed to fetch bookings", err);
     }
   };
 
