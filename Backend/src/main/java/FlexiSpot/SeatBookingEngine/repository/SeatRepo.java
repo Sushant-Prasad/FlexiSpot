@@ -7,6 +7,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Optional;
+import java.util.Optional;
 
 @Repository
 public interface SeatRepo extends JpaRepository<Seat, Long> {
@@ -24,4 +27,8 @@ public interface SeatRepo extends JpaRepository<Seat, Long> {
                                   @Param("building") String building,
                                   @Param("floor") String floor,
                                   @Param("segment") String segment);
+
+    // Find by code
+    Optional<Seat> findByCode(String code);
+
 }
