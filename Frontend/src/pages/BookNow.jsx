@@ -8,7 +8,14 @@ import SeatCard from "../components/SeatBookingEngine/SeatCard";
 import MeetingRoomCard from "../components/SeatBookingEngine/MeetingRoomCard";
 import BookingForm from "../components/SeatBookingEngine/BookingForm";
 import toast from "react-hot-toast";
-import { FiSearch, FiCalendar, FiMapPin, FiFilter, FiGrid, FiList } from "react-icons/fi";
+import {
+  FiSearch,
+  FiCalendar,
+  FiMapPin,
+  FiFilter,
+  FiGrid,
+  FiList,
+} from "react-icons/fi";
 
 const BookNow = () => {
   const [filteredData, setFilteredData] = useState([]);
@@ -23,9 +30,7 @@ const BookNow = () => {
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserId(parseInt(storedUserId));
-    }
+    if (storedUserId) setUserId(parseInt(storedUserId));
   }, []);
 
   const handleSidebarSearch = async (filters) => {
@@ -53,8 +58,8 @@ const BookNow = () => {
       }
     } catch (error) {
       console.error("Error fetching filtered data:", error);
-      setFilteredData([]);
       toast.error("Failed to fetch data. Please try again.");
+      setFilteredData([]);
     } finally {
       setLoading(false);
     }
@@ -95,7 +100,9 @@ const BookNow = () => {
               <FiCalendar className="text-3xl text-blue-600" />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Book Workspace</h1>
-                <p className="text-gray-600 mt-1">Find and book available seats or meeting rooms based on your preferences.</p>
+                <p className="text-gray-600 mt-1">
+                  Find and book available seats or meeting rooms based on your preferences.
+                </p>
               </div>
             </div>
           </div>
@@ -121,17 +128,20 @@ const BookNow = () => {
                       {selectedDate && (
                         <p className="text-sm text-gray-600 mt-1 flex items-center">
                           <FiCalendar className="mr-1" />
-                          Showing results for {new Date(selectedDate).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
+                          Showing results for{" "}
+                          {new Date(selectedDate).toLocaleDateString("en-US", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
                           })}
                         </p>
                       )}
                       {filteredData.length > 0 && (
                         <p className="text-sm text-gray-500 mt-1">
-                          Found {filteredData.length} {selectedType === "seat" ? "seat" : "meeting room"}{filteredData.length !== 1 ? "s" : ""}
+                          Found {filteredData.length}{" "}
+                          {selectedType === "seat" ? "seat" : "meeting room"}
+                          {filteredData.length !== 1 ? "s" : ""}
                         </p>
                       )}
                     </div>
@@ -174,43 +184,49 @@ const BookNow = () => {
                     <div className="text-center py-16">
                       <FiMapPin className="mx-auto text-6xl text-gray-300 mb-4" />
                       <h3 className="text-xl font-medium text-gray-900 mb-2">
-                        {selectedType ? `No ${selectedType === 'seat' ? 'seats' : 'meeting rooms'} found` : 'No results found'}
+                        {selectedType
+                          ? `No ${selectedType === "seat" ? "seats" : "meeting rooms"} found`
+                          : "No results found"}
                       </h3>
                       <p className="text-gray-500 mb-4 max-w-md mx-auto">
                         {selectedType
-                          ? 'Try adjusting your filters or selecting a different date to find available options.'
-                          : 'Use the search filters on the left to find available seats or meeting rooms.'}
+                          ? "Try adjusting your filters or selecting a different date to find available options."
+                          : "Use the search filters on the left to find available seats or meeting rooms."}
                       </p>
                       {!selectedType && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
                           <p className="text-sm text-blue-800">
-                            💡 <strong>Tip:</strong> Start by selecting a booking type and date, then apply filters to narrow down your search.
+                            💡 <strong>Tip:</strong> Start by selecting a booking type and date,
+                            then apply filters to narrow down your search.
                           </p>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className={viewMode === "grid" 
-                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-                      : "space-y-4"
-                    }>
+                    <div
+                      className={
+                        viewMode === "grid"
+                          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                          : "space-y-4"
+                      }
+                    >
                       {selectedType === "seat"
                         ? filteredData.map((seat) => (
-                          <SeatCard 
-                            key={seat.id} 
-                            seat={seat} 
-                            onBook={handleBookNow}
-                            viewMode={viewMode}
-                          />
-                        ))
+                            <SeatCard
+                              key={seat.id}
+                              seat={seat}
+                              onBook={handleBookNow}
+                              viewMode={viewMode}
+                            />
+                          ))
                         : filteredData.map((room) => (
-                          <MeetingRoomCard 
-                            key={room.id} 
-                            room={room} 
-                            onBook={handleBookNow}
-                            viewMode={viewMode}
-                          />
-                        ))}
+                            <MeetingRoomCard
+                              key={room.id}
+                              room={room}
+                              onBook={handleBookNow}
+                              viewMode={viewMode}
+                            />
+                          ))}
                     </div>
                   )}
                 </div>

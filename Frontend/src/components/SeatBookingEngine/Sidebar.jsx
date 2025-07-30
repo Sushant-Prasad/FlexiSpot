@@ -1,13 +1,19 @@
 import { useState } from "react";
-import { FiSearch, FiCalendar, FiMapPin, FiHome, FiLayers, FiFilter } from "react-icons/fi";
+import {
+  FiSearch,
+  FiCalendar,
+  FiMapPin,
+  FiHome,
+  FiLayers,
+  FiFilter,
+} from "react-icons/fi";
 
 const Sidebar = ({ onApplyFilters }) => {
-  // Helper to format today's date in YYYY-MM-DD
   const getFormattedDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   };
 
@@ -119,10 +125,11 @@ const Sidebar = ({ onApplyFilters }) => {
 
         <div className="grid grid-cols-2 gap-3">
           <button
-            className={`py-3 px-4 rounded-lg font-medium transition-all duration-200 ${type === "seat"
+            className={`py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
+              type === "seat"
                 ? "bg-blue-600 text-white shadow-md"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+            }`}
             onClick={() => setType("seat")}
           >
             <div className="flex flex-col items-center">
@@ -131,10 +138,11 @@ const Sidebar = ({ onApplyFilters }) => {
             </div>
           </button>
           <button
-            className={`py-3 px-4 rounded-lg font-medium transition-all duration-200 ${type === "room"
+            className={`py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
+              type === "room"
                 ? "bg-blue-600 text-white shadow-md"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+            }`}
             onClick={() => setType("room")}
           >
             <div className="flex flex-col items-center">
@@ -162,24 +170,49 @@ const Sidebar = ({ onApplyFilters }) => {
             <input
               type="date"
               value={date}
+              min={getFormattedDate()}
               onChange={(e) => setDate(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
           </div>
 
-          {/* Location */}
-          {renderDropdown("Location", location, setLocation, locations, customLocation, setCustomLocation, <FiMapPin />)}
-
-          {/* Building */}
-          {renderDropdown("Building", building, setBuilding, buildings, customBuilding, setCustomBuilding, <FiHome />)}
-
-          {/* Floor */}
-          {renderDropdown("Floor", floor, setFloor, floors, customFloor, setCustomFloor, <FiLayers />)}
-
-          {/* Segment (only for seats) */}
+          {renderDropdown(
+            "Location",
+            location,
+            setLocation,
+            locations,
+            customLocation,
+            setCustomLocation,
+            <FiMapPin />
+          )}
+          {renderDropdown(
+            "Building",
+            building,
+            setBuilding,
+            buildings,
+            customBuilding,
+            setCustomBuilding,
+            <FiHome />
+          )}
+          {renderDropdown(
+            "Floor",
+            floor,
+            setFloor,
+            floors,
+            customFloor,
+            setCustomFloor,
+            <FiLayers />
+          )}
           {type === "seat" &&
-            renderDropdown("Segment", segment, setSegment, segments, customSegment, setCustomSegment, <FiMapPin />)
-          }
+            renderDropdown(
+              "Segment",
+              segment,
+              setSegment,
+              segments,
+              customSegment,
+              setCustomSegment,
+              <FiMapPin />
+            )}
         </div>
 
         {/* Action Buttons */}

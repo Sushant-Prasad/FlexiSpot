@@ -44,8 +44,6 @@ const BookingForm = ({
 
   const handleSlotClick = (index) => {
     const slot = timeSlots[index];
-
-    // Construct a DateTime from selected date and slot.startTime
     const slotDateTime = new Date(`${date}T${slot.startTime}`);
     const now = new Date();
     const isToday = new Date(date).toDateString() === now.toDateString();
@@ -139,12 +137,13 @@ const BookingForm = ({
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               required
             />
           </div>
 
-          {/* Selected Time Range Display */}
+          {/* Selected Time Range */}
           {selectedIndices.length > 0 && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center space-x-2">
@@ -197,11 +196,6 @@ const BookingForm = ({
                         {isSelected && <FiCheck size={12} />}
                         <span>{slot.startTime} - {slot.endTime}</span>
                       </div>
-                      {slot.booked && slot.bookedBy && (
-                        <div className="text-xs mt-1 opacity-75">
-                          Booked by {slot.bookedBy}
-                        </div>
-                      )}
                       {isPast && !slot.booked && (
                         <div className="text-xs mt-1 opacity-75">
                           Past
@@ -214,7 +208,7 @@ const BookingForm = ({
             )}
           </div>
 
-          {/* Action Buttons */}
+          {/* Buttons */}
           <div className="flex gap-3 pt-4 border-t border-gray-200">
             <button
               type="submit"
