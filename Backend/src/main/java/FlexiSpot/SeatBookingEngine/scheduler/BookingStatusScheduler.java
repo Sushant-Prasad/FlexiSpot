@@ -23,7 +23,7 @@ public class BookingStatusScheduler {
     private SeatRepo seatRepo;
 
     // ⏰ Runs every 5 minutes
-    @Scheduled(fixedRate = 5 * 60 * 1000)
+    @Scheduled(fixedRate = 1 * 60 * 1000)
     public void expirePastBookings() {
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();

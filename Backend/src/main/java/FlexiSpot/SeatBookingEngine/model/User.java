@@ -51,8 +51,6 @@ public class User {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
-        this.confirmPassword = confirmPassword;
-        this.empId = empId;
         this.role = role;
         this.department = department;
     }

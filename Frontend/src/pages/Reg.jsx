@@ -1,125 +1,189 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+// import React, { useState, useRef } from 'react';
+// import { FiMail, FiLock, FiUser, FiPhone } from "react-icons/fi";
+// import { useNavigate } from 'react-router-dom';
+// import axios from "axios";
+// import { registerUser } from '../services/authServices';
+// function Reg() {
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [msg, setMsg] = useState("");
+//   const [showMsg, setShowMsg] = useState(false);
+//   const msgTimeout = useRef(null);
+//   const navigate = useNavigate();
+//   const [success, setSuccess] = useState(false);
 
+//   const [register, setRegister] = useState({
+//     name: "",
+//     email: "",
+//     phoneNumber: "",
+//     role: "",
+//     department: "",
+//     password: "",
+//     confirmPassword: ""
+//   });
 
-const Reg = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phoneNumber: "",
-    role: "employee",
-    department: "",
-    password: "",
-    confirmPassword: "",
-  });
+//   const handleChange = (e) => {
+//     setRegister({ ...register, [e.target.name]: e.target.value });
+//   };
 
-  const navigate = useNavigate();
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+//     if (register.password !== register.confirmPassword) {
+//       setMsg("Passwords do not match");
+//       setShowMsg(true);
+//       setSuccess(false);
+//       return;
+//     }
 
-  const validateForm = () => {
-    const { name, email, phoneNumber, password, confirmPassword } = formData;
-    const nameRegex = /^[A-Za-z ]+$/;
-    const phoneRegex = /^[0-9]{10}$/;
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     try {
+//       const response = await axios.post("http://localhost:8080/auth/register", register);
+//       if (response.data.success) {
+//         setMsg("Registration successful! You can now login.");
+//         setShowMsg(true);
+//         setSuccess(true);
+//         setRegister({
+//           name: "", email: "", phoneNumber: "", empId: "", role: "",
+//           department: "", password: "", confirmPassword: ""
+//         });
+//         return;
+//       }
+//     } catch (err) {
+//       setMsg("Registration failed. Try again.");
+//       setShowMsg(true);
+//       if (msgTimeout.current) clearTimeout(msgTimeout.current);
+//       msgTimeout.current = setTimeout(() => {
+//         setShowMsg(false);
+//         setMsg("");
+//       }, 5000);
+//     }
+//   };
 
-    if (!nameRegex.test(name)) {
-      toast.error("Name should contain only letters.");
-      return false;
-    }
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-200 px-4">
+//       <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg border border-blue-100">
+//         <h2 className="text-3xl font-extrabold text-center mb-6 text-blue-700 flex items-center justify-center gap-2 tracking-tight">
+//           <FiUser className="text-4xl" /> Create an Account
+//         </h2>
 
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address.");
-      return false;
-    }
+//         {showMsg && msg && (
+//           <div className="mb-4">
+//             <p className={`text-center font-semibold rounded py-2 ${success ? 'text-green-700 bg-green-50 border border-green-200' : 'text-red-600 bg-red-50 border border-red-200'}`}>{msg}</p>
+//             {success && (
+//               <button
+//                 className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold text-lg shadow hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+//                 onClick={() => navigate('/login')}
+//               >
+//                 Go to Login
+//               </button>
+//             )}
+//           </div>
+//         )}
 
-    if (!phoneRegex.test(phoneNumber)) {
-      toast.error("Phone number should contain exactly 10 digits.");
-      return false;
-    }
+//         {!success && (
+//           <form onSubmit={handleSubmit} className="space-y-5">
+//             {/* Name */}
+//             <input
+//               type="text"
+//               name="name"
+//               placeholder="Full Name"
+//               value={register.name}
+//               onChange={handleChange}
+//               required
+//               className="w-full border px-3 py-2 rounded-lg bg-gray-50"
+//             />
 
-    if (!passwordRegex.test(password)) {
-      toast.error("Password must contain letters and numbers (min 6 characters).");
-      return false;
-    }
+//             {/* Email */}
+//             <input
+//               type="email"
+//               name="email"
+//               placeholder="Email"
+//               value={register.email}
+//               onChange={handleChange}
+//               required
+//               className="w-full border px-3 py-2 rounded-lg bg-gray-50"
+//             />
 
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
-      return false;
-    }
+//             {/* Phone Number */}
+//             <input
+//               type="text"
+//               name="phoneNumber"
+//               placeholder="Phone Number"
+//               value={register.phoneNumber}
+//               onChange={handleChange}
+//               required
+//               className="w-full border px-3 py-2 rounded-lg bg-gray-50"
+//             />
 
-    return true;
-  };
+//             {/* Department */}
+//             <input
+//               type="text"
+//               name="department"
+//               placeholder="Department"
+//               value={register.department}
+//               onChange={handleChange}
+//               required
+//               className="w-full border px-3 py-2 rounded-lg bg-gray-50"
+//             />
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+//             {/* Role */}
+//             <select
+//               name="role"
+//               value={register.role}
+//               onChange={handleChange}
+//               required
+//               className="w-full border px-3 py-2 rounded-lg bg-gray-50"
+//             >
+//               <option value="">Select Role</option>
+//               <option value="Employee">Employee</option>
+//               <option value="Admin">Admin</option>
+//             </select>
 
-    try {
-      const message = await registerUser(formData);
-      toast.success(message || "Signup successful!");
-      navigate("/login");
-    } catch (error) {
-      toast.error(error.message || "Signup failed");
-    }
-  };
+//             {/* Password */}
+//             <input
+//               type={showPassword ? "text" : "password"}
+//               name="password"
+//               placeholder="Password"
+//               value={register.password}
+//               onChange={handleChange}
+//               required
+//               className="w-full border px-3 py-2 rounded-lg bg-gray-50"
+//             />
 
-  const handleLoginRedirect = () => {
-    navigate("/login");
-  };
+//             {/* Confirm Password */}
+//             <input
+//               type={showPassword ? "text" : "password"}
+//               name="confirmPassword"
+//               placeholder="Confirm Password"
+//               value={register.confirmPassword}
+//               onChange={handleChange}
+//               required
+//               className="w-full border px-3 py-2 rounded-lg bg-gray-50"
+//             />
 
-  return (
-    <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-2xl p-8 w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold text-blue-600 mb-6 text-center">
-          Signup Form
-        </h2>
+//             <button
+//               type="button"
+//               onClick={() => setShowPassword(!showPassword)}
+//               className="text-xs text-blue-500 hover:underline"
+//             >
+//               {showPassword ? "Hide Password" : "Show Password"}
+//             </button>
 
-        {["name", "email", "phoneNumber", "department", "password", "confirmPassword"].map((field) => (
-          <div className="mb-4" key={field}>
-            <label htmlFor={field} className="block text-blue-700 capitalize">
-              {field.replace(/([A-Z])/g, " $1")}
-            </label>
-            <input
-              id={field}
-              name={field}
-              type={field.toLowerCase().includes("password") ? "password" : "text"}
-              value={formData[field]}
-              onChange={handleChange}
-              autoComplete={field}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-400"
-              required
-            />
-          </div>
-        ))}
+//             <button
+//               type="submit"
+//               className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold text-lg shadow hover:bg-blue-700 transition"
+//             >
+//               Register
+//             </button>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition duration-200"
-        >
-          Sign Up
-        </button>
+//             <p className="text-center text-sm text-gray-600 mt-2">
+//               Already have an account?{" "}
+//               <a href="/login" className="text-blue-600 hover:underline font-medium">Login</a>
+//             </p>
+//           </form>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
 
-        <p className="mt-6 text-center text-sm text-blue-700">
-          Already have an account?{" "}
-          <span
-            className="text-blue-500 hover:underline cursor-pointer"
-            onClick={handleLoginRedirect}
-          >
-            Log in here
-          </span>
-        </p>
-      </form>
-    </div>
-  );
-};
-
-export default Reg;
+// export default Reg;
