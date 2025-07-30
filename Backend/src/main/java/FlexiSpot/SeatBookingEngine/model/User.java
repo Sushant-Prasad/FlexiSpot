@@ -29,17 +29,12 @@ public class User {
     @NotBlank(message = "Password is required")
     private String password;
 
-    @NotBlank(message = "Confirm password is required")
-    @Transient // Will not be stored in DB
-    private String confirmPassword; // new
-
     private Integer empId; // new
 
     @NotBlank(message = "Role is required")
     private String role;
 
-    @NotBlank(message = "Department is required")
-    private String department;
+
 
     // === Constructors ===
 
@@ -51,10 +46,10 @@ public class User {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
-        this.confirmPassword = confirmPassword;
+
         this.empId = empId;
         this.role = role;
-        this.department = department;
+
     }
 
     // === Getters and Setters ===
@@ -79,9 +74,7 @@ public class User {
 
     public void setPassword(String password) { this.password = password; }
 
-    public String getConfirmPassword() { return confirmPassword; }
 
-    public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
 
     public Integer getEmpId() { return empId; }
 
@@ -91,7 +84,5 @@ public class User {
 
     public void setRole(String role) { this.role = role; }
 
-    public String getDepartment() { return department; }
 
-    public void setDepartment(String department) { this.department = department; }
 }
