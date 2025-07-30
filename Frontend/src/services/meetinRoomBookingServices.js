@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api/meeting-bookings';
+const BASE_URL = 'http://localhost:1005/api/meeting-bookings';
 
 //Get all meeting room bookings
 export const getAllMeetingBookings = async () => {

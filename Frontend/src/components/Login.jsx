@@ -1,14 +1,14 @@
 
 import React, { useState } from "react";
-import { FiUser, FiLock } from "react-icons/fi";
+import { FiMail, FiLock } from "react-icons/fi";
 import { FaUserShield } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [register, setRegister] = useState({
-    username: "",
+  const [loginData, setLoginData] = useState({
+    email: "",
     password: ""
   });
   const [msg, setMsg] = useState("");
@@ -16,13 +16,13 @@ function Login() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setRegister({ ...register, [e.target.name]: e.target.value });
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:1005/register/login", register);
+      const response = await axios.post("http://localhost:1005/auth/login", loginData);
 
       if (response.data.success && response.data.token) {
         localStorage.setItem("token", response.data.token);
@@ -48,14 +48,14 @@ function Login() {
       refreshData();
     } catch (err) {
       console.error("Login error:", err);
-      setMsg("Invalid username or password");
+      setMsg("Invalid email or password");
       setSuccess(false);
     }
   };
 
   const refreshData = () => {
-    setRegister({
-      username: "",
+    setLoginData({
+      email: "",
       password: ""
     });
   };
@@ -73,14 +73,14 @@ function Login() {
         )}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">Username</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700">Email</label>
             <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-blue-500 bg-gray-50">
-              <FiUser className="text-gray-400 mr-2 text-lg" />
+              <FiMail className="text-gray-400 mr-2 text-lg" />
               <input
-                type="text"
-                name="username"
-                placeholder="Enter your username"
-                value={register.username}
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                value={loginData.email}
                 onChange={handleChange}
                 className="w-full outline-none bg-transparent text-gray-900 placeholder-gray-400"
                 required
@@ -95,7 +95,7 @@ function Login() {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Enter your password"
-                value={register.password}
+                value={loginData.password}
                 onChange={handleChange}
                 className="w-full outline-none bg-transparent text-gray-900 placeholder-gray-400"
                 required

@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Bar } from "react-chartjs-2";
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
-    BarElement,
+    PointElement,
+    LineElement,
     Title,
     Tooltip,
     Legend,
+    ArcElement,
+    BarElement,
 } from "chart.js";
+import { Line, Doughnut, Bar } from "react-chartjs-2";
 import {
+    fetchTotalResources,
     fetchMonthlyUsageHeatmap,
     fetchOccupancyRate,
     fetchPeakHours,
     fetchTopUsed,
     fetchSuggestedBestDays,
     fetchInactiveUsers,
-    fetchTotalResources,
     downloadSummaryCSV,
-} from "../services/AanlyticsAPI";
+} from "../services/AnalyticsAPI";
 import { UserIcon } from "@heroicons/react/20/solid";
 
 ChartJS.register(

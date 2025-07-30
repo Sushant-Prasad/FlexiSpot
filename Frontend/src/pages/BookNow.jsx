@@ -8,7 +8,7 @@ import SeatCard from "../components/SeatBookingEngine/SeatCard";
 import MeetingRoomCard from "../components/SeatBookingEngine/MeetingRoomCard";
 import BookingForm from "../components/SeatBookingEngine/BookingForm";
 import toast from "react-hot-toast";
-import { FiSearch, FiCalendar, FiMapPin } from "react-icons/fi";
+import { FiSearch, FiCalendar, FiMapPin, FiFilter, FiGrid, FiList } from "react-icons/fi";
 
 const BookNow = () => {
   const [filteredData, setFilteredData] = useState([]);
@@ -18,6 +18,7 @@ const BookNow = () => {
   const [showForm, setShowForm] = useState(false);
   const [lastFilters, setLastFilters] = useState(null); //Store last filter
   const [loading, setLoading] = useState(false);
+  const [viewMode, setViewMode] = useState("grid"); // grid or list
 
   // Fetch data based on filters
   const handleSidebarSearch = async (filters) => {
@@ -81,85 +82,147 @@ const BookNow = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-        <div className="flex items-center space-x-3 mb-2">
-          <FiCalendar className="text-2xl text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Book Workspace</h1>
-        </div>
-        <p className="text-gray-600">Find and book available seats or meeting rooms based on your preferences.</p>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar */}
-        <div className="lg:w-1/3">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                <FiSearch className="mr-2" />
-                Search & Filters
-              </h2>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center space-x-3 mb-2">
+              <FiCalendar className="text-3xl text-blue-600" />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Book Workspace</h1>
+                <p className="text-gray-600 mt-1">Find and book available seats or meeting rooms based on your preferences.</p>
+              </div>
             </div>
-            <div className="p-4">
+          </div>
+
+          <div className="flex flex-col xl:flex-row gap-6">
+            {/* Sidebar - Search & Filters */}
+            <div className="xl:w-80 flex-shrink-0">
               <Sidebar onApplyFilters={handleSidebarSearch} />
             </div>
-          </div>
-        </div>
 
-        {/* Results */}
-        <div className="lg:w-2/3">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {selectedType === "seat"
-                  ? "Available Seats"
-                  : selectedType === "room"
-                    ? "Available Meeting Rooms"
-                    : "Search Results"}
-              </h2>
-              {selectedDate && (
-                <p className="text-sm text-gray-600 mt-1">
-                  Showing results for {new Date(selectedDate).toLocaleDateString()}
-                </p>
-              )}
-            </div>
+            {/* Results Section */}
+            <div className="flex-1">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                {/* Results Header */}
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <h2 className="text-2xl font-semibold text-gray-900 flex items-center">
+                        <FiSearch className="mr-2 text-blue-600" />
+                        {selectedType === "seat"
+                          ? "Available Seats"
+                          : selectedType === "room"
+                            ? "Available Meeting Rooms"
+                            : "Search Results"}
+                      </h2>
+                      {selectedDate && (
+                        <p className="text-sm text-gray-600 mt-1 flex items-center">
+                          <FiCalendar className="mr-1" />
+                          Showing results for {new Date(selectedDate).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      )}
+                      {filteredData.length > 0 && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          Found {filteredData.length} {selectedType === "seat" ? "seat" : "meeting room"}{filteredData.length !== 1 ? "s" : ""}
+                        </p>
+                      )}
+                    </div>
 
-            <div className="p-6">
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Searching for available options...</p>
+                    {/* View Mode Toggle */}
+                    {filteredData.length > 0 && (
+                      <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                        <button
+                          onClick={() => setViewMode("grid")}
+                          className={`p-2 rounded-md transition-colors ${
+                            viewMode === "grid" 
+                              ? "bg-white text-blue-600 shadow-sm" 
+                              : "text-gray-600 hover:text-gray-900"
+                          }`}
+                        >
+                          <FiGrid className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setViewMode("list")}
+                          className={`p-2 rounded-md transition-colors ${
+                            viewMode === "list" 
+                              ? "bg-white text-blue-600 shadow-sm" 
+                              : "text-gray-600 hover:text-gray-900"
+                          }`}
+                        >
+                          <FiList className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ) : filteredData.length === 0 ? (
-                <div className="text-center py-12">
-                  <FiMapPin className="mx-auto text-4xl text-gray-400 mb-4" />
-                  <p className="text-gray-500 text-lg mb-2">
-                    {selectedType ? `No ${selectedType === 'seat' ? 'seats' : 'meeting rooms'} found` : 'No results found'}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    {selectedType
-                      ? 'Try adjusting your filters or selecting a different date'
-                      : 'Use the filters on the left to search for available options'
-                    }
-                  </p>
+
+                {/* Results Content */}
+                <div className="p-6">
+                  {loading ? (
+                    <div className="text-center py-16">
+                      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                      <p className="text-gray-600 text-lg">Searching for available options...</p>
+                      <p className="text-sm text-gray-400 mt-2">This may take a few moments</p>
+                    </div>
+                  ) : filteredData.length === 0 ? (
+                    <div className="text-center py-16">
+                      <FiMapPin className="mx-auto text-6xl text-gray-300 mb-4" />
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">
+                        {selectedType ? `No ${selectedType === 'seat' ? 'seats' : 'meeting rooms'} found` : 'No results found'}
+                      </h3>
+                      <p className="text-gray-500 mb-4 max-w-md mx-auto">
+                        {selectedType
+                          ? 'Try adjusting your filters or selecting a different date to find available options.'
+                          : 'Use the search filters on the left to find available seats or meeting rooms.'
+                        }
+                      </p>
+                      {!selectedType && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                          <p className="text-sm text-blue-800">
+                            💡 <strong>Tip:</strong> Start by selecting a booking type and date, then apply filters to narrow down your search.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={viewMode === "grid" 
+                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+                      : "space-y-4"
+                    }>
+                      {selectedType === "seat"
+                        ? filteredData.map((seat) => (
+                          <SeatCard 
+                            key={seat.id} 
+                            seat={seat} 
+                            onBook={handleBookNow}
+                            viewMode={viewMode}
+                          />
+                        ))
+                        : filteredData.map((room) => (
+                          <MeetingRoomCard 
+                            key={room.id} 
+                            room={room} 
+                            onBook={handleBookNow}
+                            viewMode={viewMode}
+                          />
+                        ))}
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="grid md:grid-cols-2 gap-6">
-                  {selectedType === "seat"
-                    ? filteredData.map((seat) => (
-                      <SeatCard key={seat.id} seat={seat} onBook={handleBookNow} />
-                    ))
-                    : filteredData.map((room) => (
-                      <MeetingRoomCard key={room.id} room={room} onBook={handleBookNow} />
-                    ))}
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Booking Form Modal */}
       {showForm && selectedItem && (
         <BookingForm
           itemId={selectedItem.id}

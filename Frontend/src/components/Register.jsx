@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { FiMail, FiLock, FiUser } from "react-icons/fi";
+import { FiMail, FiLock, FiUser, FiPhone } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
@@ -13,11 +13,11 @@ function Register() {
   const [success, setSuccess] = useState(false);
 
   const [register, setRegister] = useState({
-    username: "",
+    name: "",
     email: "",
     password: "",
     role: "",
-    fullName: ""
+    phoneNumber: ""
   });
 
   const handleChange = (e) => {
@@ -27,17 +27,23 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:1005/register/add", register);
+      const response = await axios.post("http://localhost:1005/auth/register", register);
       if (response.data.success) {
-        //alert("Registration successful! You can now login.");
         setMsg("Registration successful! You can now login.");
         setShowMsg(true);
         setSuccess(true);
-        setRegister({ username: "", email: "", password: "", role: "", fullName: "" });
+        setRegister({ name: "", email: "", password: "", role: "", phoneNumber: "" });
         return;
       }
     } catch (err) {
-      setMsg("Registration failed. Try again.");
+      console.error("Registration error:", err);
+      if (err.response && err.response.data && err.response.data.errors) {
+        // Handle validation errors from backend
+        const errorMessages = Object.values(err.response.data.errors).join(', ');
+        setMsg(`Registration failed: ${errorMessages}`);
+      } else {
+        setMsg("Registration failed. Please try again.");
+      }
       setShowMsg(true);
       if (msgTimeout.current) clearTimeout(msgTimeout.current);
       msgTimeout.current = setTimeout(() => {
@@ -72,22 +78,12 @@ function Register() {
               <label className="block text-sm font-medium mb-1 text-gray-700">Full Name</label>
               <input
                 type="text"
-                name="fullName"
-                value={register.fullName}
+                name="name"
+                value={register.name}
                 onChange={handleChange}
                 required
                 className="w-full border border-gray-300 px-3 py-2 rounded-lg outline-none bg-gray-50 focus:border-blue-500 text-gray-900 placeholder-gray-400"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">Username</label>
-              <input
-                type="text"
-                name="username"
-                value={register.username}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg outline-none bg-gray-50 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                placeholder="Enter your full name"
               />
             </div>
             <div>
@@ -99,7 +95,26 @@ function Register() {
                 onChange={handleChange}
                 required
                 className="w-full border border-gray-300 px-3 py-2 rounded-lg outline-none bg-gray-50 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                placeholder="Enter your email address"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-gray-700">Phone Number</label>
+              <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-blue-500 bg-gray-50">
+                <FiPhone className="text-gray-400 mr-2 text-lg" />
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  value={register.phoneNumber}
+                  onChange={handleChange}
+                  required
+                  pattern="[0-9]{10}"
+                  maxLength="10"
+                  className="w-full outline-none bg-transparent text-gray-900 placeholder-gray-400"
+                  placeholder="Enter 10-digit phone number"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Enter a 10-digit phone number (e.g., 1234567890)</p>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1 text-gray-700">Role</label>
@@ -126,6 +141,7 @@ function Register() {
                   onChange={handleChange}
                   required
                   className="w-full outline-none bg-transparent text-gray-900 placeholder-gray-400"
+                  placeholder="Enter your password"
                 />
               </div>
               <button

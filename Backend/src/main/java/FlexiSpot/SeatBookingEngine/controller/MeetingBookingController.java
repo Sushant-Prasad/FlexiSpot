@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/meeting-bookings")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
 public class MeetingBookingController {
 
     @Autowired
@@ -49,13 +49,13 @@ public class MeetingBookingController {
     }
 
     // Get list of 1-hour time slots for a meeting room on a specific date
-    @GetMapping("/room/{roomId}/timeslots")
-    public ResponseEntity<List<TimeSlotStatus>> getTimeSlotsForRoom(
-            @PathVariable Long roomId,
+    @GetMapping("/room/{meetingRoomId}/timeslots")
+    public ResponseEntity<List<TimeSlotStatus>> getTimeSlotsForMeetingRoom(
+            @PathVariable Long meetingRoomId,
             @RequestParam("date") String date
     ) {
         LocalDate localDate = LocalDate.parse(date);
-        List<TimeSlotStatus> slots = bookingService.getTimeSlotsForMeetingRoom(roomId, localDate);
+        List<TimeSlotStatus> slots = bookingService.getTimeSlotStatusForMeetingRoom(meetingRoomId, localDate);
         return ResponseEntity.ok(slots);
     }
 }
