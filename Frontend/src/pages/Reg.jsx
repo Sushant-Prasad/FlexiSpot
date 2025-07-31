@@ -36,7 +36,7 @@
 //     }
 
 //     try {
-//       const response = await axios.post("http://localhost:8080/auth/register", register);
+//       const response = await axios.post("http://localhost:1005/auth/register", register);
 //       if (response.data.success) {
 //         setMsg("Registration successful! You can now login.");
 //         setShowMsg(true);

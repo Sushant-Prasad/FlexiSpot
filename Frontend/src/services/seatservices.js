@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api/seats';
+const BASE_URL = 'http://localhost:1005/api/seats';
 
 // Get all available seats
 export const getAvailableSeats = async () => {

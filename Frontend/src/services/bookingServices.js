@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api/bookings';
+const BASE_URL = 'http://localhost:1005/api/bookings';
 
 //Get 30-minute time slots for a seat on a specific date
 export const getTimeSlotsForSeat = async (seatId, date) => {
