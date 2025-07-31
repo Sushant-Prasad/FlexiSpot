@@ -16,15 +16,10 @@ const Footer = () => {
               Streamline your office operations with our intuitive booking system.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
+              <a href="https://github.com/Sushant-Prasad/FlexiSpot/" className="text-gray-400 hover:text-blue-400 transition-colors">
                 <FiGithub size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                <FiLinkedin size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                <FiTwitter size={20} />
-              </a>
+      
             </div>
           </div>
 

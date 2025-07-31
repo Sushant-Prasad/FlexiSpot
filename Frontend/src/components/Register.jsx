@@ -17,7 +17,8 @@ function Register() {
     email: "",
     password: "",
     role: "",
-    phoneNumber: ""
+    phoneNumber: "",
+    department: ""
   });
 
   const handleChange = (e) => {
@@ -32,7 +33,7 @@ function Register() {
         setMsg("Registration successful! You can now login.");
         setShowMsg(true);
         setSuccess(true);
-        setRegister({ name: "", email: "", password: "", role: "", phoneNumber: "" });
+        setRegister({ name: "", email: "", password: "", role: "", phoneNumber: "", department: "" });
         return;
       }
     } catch (err) {
@@ -128,6 +129,23 @@ function Register() {
                 <option value="">Select your role</option>
                 <option value="employee">Employee - Book desks and meeting rooms</option>
                 <option value="admin">Admin - Manage system and view analytics</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-gray-700">Department</label>
+              <select
+                name="department"
+                value={register.department}
+                onChange={handleChange}
+                required
+                className="w-full border border-gray-300 px-3 py-2 rounded-lg outline-none bg-gray-50 focus:border-blue-500 text-gray-900"
+              >
+                <option value="">Select your department</option>
+                <option value="IT">IT</option>
+                <option value="HR">HR</option>
+                <option value="Finance">Finance</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Operations">Operations</option>
               </select>
             </div>
             <div>

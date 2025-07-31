@@ -34,7 +34,8 @@ public class User {
     @NotBlank(message = "Role is required")
     private String role;
 
-
+    @NotBlank(message = "Department is required")
+    private String department;
 
     // === Constructors ===
 
@@ -46,10 +47,9 @@ public class User {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
-
         this.empId = empId;
         this.role = role;
-
+        this.department = department;
     }
 
     // === Getters and Setters ===
@@ -84,5 +84,8 @@ public class User {
 
     public void setRole(String role) { this.role = role; }
 
+    public String getDepartment() { return department; }
+
+    public void setDepartment(String department) { this.department = department; }
 
 }

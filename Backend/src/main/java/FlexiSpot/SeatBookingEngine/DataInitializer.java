@@ -48,6 +48,7 @@ public class DataInitializer implements CommandLineRunner {
         admin.setPassword(passwordEncoder.encode("admin123"));
         admin.setRole("admin");
         admin.setEmpId(1001);
+        admin.setDepartment("IT");
         userRepo.save(admin);
 
         // Create Employee User
@@ -58,11 +59,12 @@ public class DataInitializer implements CommandLineRunner {
         employee.setPassword(passwordEncoder.encode("employee123"));
         employee.setRole("employee");
         employee.setEmpId(2001);
+        employee.setDepartment("HR");
         userRepo.save(employee);
 
         System.out.println("👥 Sample users created:");
-        System.out.println("   Admin: admin@flexispot.com / admin123");
-        System.out.println("   Employee: employee@flexispot.com / employee123");
+        System.out.println("   Admin: admin@flexispot.com / admin123 (IT Department)");
+        System.out.println("   Employee: employee@flexispot.com / employee123 (HR Department)");
     }
 
     private void initializeSeats() {
@@ -133,7 +135,6 @@ public class DataInitializer implements CommandLineRunner {
         room1.setLocation("Delhi");
         room1.setBuilding("Building A");
         room1.setFloor("1st Floor");
-        room1.setCapacity(8);
         room1.setIsAvailable(true);
         meetingRoomRepo.save(room1);
 
@@ -142,7 +143,6 @@ public class DataInitializer implements CommandLineRunner {
         room2.setLocation("Delhi");
         room2.setBuilding("Building A");
         room2.setFloor("2nd Floor");
-        room2.setCapacity(12);
         room2.setIsAvailable(true);
         meetingRoomRepo.save(room2);
 
@@ -152,7 +152,6 @@ public class DataInitializer implements CommandLineRunner {
         room3.setLocation("Mumbai");
         room3.setBuilding("Building B");
         room3.setFloor("1st Floor");
-        room3.setCapacity(6);
         room3.setIsAvailable(true);
         meetingRoomRepo.save(room3);
 
@@ -161,7 +160,6 @@ public class DataInitializer implements CommandLineRunner {
         room4.setLocation("Mumbai");
         room4.setBuilding("Building B");
         room4.setFloor("2nd Floor");
-        room4.setCapacity(10);
         room4.setIsAvailable(true);
         meetingRoomRepo.save(room4);
 
@@ -171,7 +169,6 @@ public class DataInitializer implements CommandLineRunner {
         room5.setLocation("Pune");
         room5.setBuilding("Building C");
         room5.setFloor("1st Floor");
-        room5.setCapacity(4);
         room5.setIsAvailable(true);
         meetingRoomRepo.save(room5);
 

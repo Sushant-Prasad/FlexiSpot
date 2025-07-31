@@ -16,3 +16,7 @@ target/
 *.iws
 *.ipr
 
+#Readme files
+DATABASE_FIX_README.md
+HELP.md
+

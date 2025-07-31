@@ -27,7 +27,8 @@ public class SeatManagementServiceImpl implements SeatManagementService {
             throw new RuntimeException("Seat with code " + seatDTO.getCode() + " already exists");
         }
 
-        if (seatRepo.findById(seatDTO.getId()).isPresent()) {
+        // Only check for existing ID if the seatDTO has an ID (for updates)
+        if (seatDTO.getId() != null && seatRepo.findById(seatDTO.getId()).isPresent()) {
             throw new RuntimeException("Seat with desk ID " + seatDTO.getId() + " already exists");
         }
 

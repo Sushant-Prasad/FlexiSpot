@@ -86,8 +86,7 @@ const ResourceManagement = () => {
         building: '',
         floor: '',
         segment: '',
-        isAvailable: true,
-        deskId: ''
+        isAvailable: true
     });
 
     // Filter states
@@ -189,8 +188,7 @@ const ResourceManagement = () => {
             building: '',
             floor: '',
             segment: '',
-            isAvailable: true,
-            deskId: ''
+            isAvailable: true
         });
         setEditingItem(null);
     };
@@ -204,13 +202,39 @@ const ResourceManagement = () => {
 
         try {
             const endpoint = activeTab === 'seats' ? '/seat-management' : '/meeting-room-management';
-            const data = activeTab === 'seats' ? formData : {
-                roomCode: formData.code,
-                location: formData.location,
-                building: formData.building,
-                floor: formData.floor,
-                isAvailable: formData.isAvailable
-            };
+
+            // Prepare data based on the active tab
+            let data;
+            if (activeTab === 'seats') {
+                // For seats, only send id if editing, and ensure all required fields are present
+                data = {
+                    code: formData.code.trim(),
+                    location: formData.location.trim(),
+                    building: formData.building.trim(),
+                    floor: formData.floor.trim(),
+                    segment: formData.segment.trim(),
+                    isAvailable: formData.isAvailable
+                };
+
+                // Only add id if editing
+                if (editingItem) {
+                    data.id = editingItem.id;
+                }
+            } else {
+                // For meeting rooms
+                data = {
+                    roomCode: formData.code.trim(),
+                    location: formData.location.trim(),
+                    building: formData.building.trim(),
+                    floor: formData.floor.trim(),
+                    isAvailable: formData.isAvailable
+                };
+
+                // Only add id if editing
+                if (editingItem) {
+                    data.id = editingItem.id;
+                }
+            }
 
             if (editingItem) {
                 await axios.put(`${API_BASE_URL}${endpoint}/${editingItem.id}`, data, {
@@ -228,8 +252,9 @@ const ResourceManagement = () => {
             resetForm();
             loadData();
         } catch (err) {
-            setError(err.response?.data || err.message);
-            showNotification(err.response?.data || err.message, 'error');
+            const errorMessage = err.response?.data || err.message;
+            setError(errorMessage);
+            showNotification(errorMessage, 'error');
         } finally {
             setLoading(false);
         }
@@ -244,8 +269,7 @@ const ResourceManagement = () => {
             building: item.building,
             floor: item.floor,
             segment: item.segment || '',
-            isAvailable: item.isAvailable,
-            deskId: item.deskId || ''
+            isAvailable: item.isAvailable
         });
         setShowForm(true);
     };
@@ -451,94 +475,95 @@ const ResourceManagement = () => {
 
             {/* Form Modal */}
             {showForm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-                        <h2 className="text-xl font-semibold mb-4">
-                            {editingItem ? 'Edit' : 'Add'} {activeTab === 'seats' ? 'Desk' : 'Meeting Room'}
-                        </h2>
+                <div className="relative mb-6">
+                    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 max-w-lg mx-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold text-gray-900">
+                                {editingItem ? 'Edit' : 'Add'} {activeTab === 'seats' ? 'Desk' : 'Meeting Room'}
+                            </h2>
+                            <button
+                                onClick={() => {
+                                    setShowForm(false);
+                                    resetForm();
+                                }}
+                                className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                            >
+                                <FiX size={20} />
+                            </button>
+                        </div>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-1">
-                                    {activeTab === 'seats' ? 'Desk Code' : 'Room Code'}
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.code}
-                                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                                    className="w-full border rounded px-3 py-2"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Location</label>
-                                <input
-                                    type="text"
-                                    value={formData.location}
-                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                    className="w-full border rounded px-3 py-2"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Building</label>
-                                <input
-                                    type="text"
-                                    value={formData.building}
-                                    onChange={(e) => setFormData({ ...formData, building: e.target.value })}
-                                    className="w-full border rounded px-3 py-2"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Floor</label>
-                                <input
-                                    type="text"
-                                    value={formData.floor}
-                                    onChange={(e) => setFormData({ ...formData, floor: e.target.value })}
-                                    className="w-full border rounded px-3 py-2"
-                                    required
-                                />
-                            </div>
-                            {activeTab === 'seats' && (
-                                <>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Segment</label>
-                                        <input
-                                            type="text"
-                                            value={formData.segment}
-                                            onChange={(e) => setFormData({ ...formData, segment: e.target.value })}
-                                            className="w-full border rounded px-3 py-2"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Desk ID</label>
-                                        <input
-                                            type="text"
-                                            value={formData.deskId}
-                                            onChange={(e) => setFormData({ ...formData, deskId: e.target.value })}
-                                            className="w-full border rounded px-3 py-2"
-                                            required
-                                        />
-                                    </div>
-                                </>
-                            )}
-                            <div>
-                                <label className="flex items-center">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                        {activeTab === 'seats' ? 'Desk Code' : 'Room Code'}
+                                    </label>
                                     <input
-                                        type="checkbox"
-                                        checked={formData.isAvailable}
-                                        onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
-                                        className="mr-2"
+                                        type="text"
+                                        value={formData.code}
+                                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                        required
                                     />
-                                    <span className="text-sm font-medium">Available</span>
-                                </label>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Location</label>
+                                    <input
+                                        type="text"
+                                        value={formData.location}
+                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Building</label>
+                                    <input
+                                        type="text"
+                                        value={formData.building}
+                                        onChange={(e) => setFormData({ ...formData, building: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Floor</label>
+                                    <input
+                                        type="text"
+                                        value={formData.floor}
+                                        onChange={(e) => setFormData({ ...formData, floor: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                        required
+                                    />
+                                </div>
+                                {activeTab === 'seats' && (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Segment</label>
+                                            <input
+                                                type="text"
+                                                value={formData.segment}
+                                                onChange={(e) => setFormData({ ...formData, segment: e.target.value })}
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                                required
+                                            />
+                                        </div>
+                                    </>
+                                )}
                             </div>
-                            <div className="flex space-x-2">
+                            <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.isAvailable}
+                                    onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
+                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                                <label className="ml-2 text-sm font-medium text-gray-700">Available</label>
+                            </div>
+                            <div className="flex space-x-3 pt-2">
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium transition-colors text-sm"
                                 >
                                     {loading ? 'Saving...' : (editingItem ? 'Update' : 'Create')}
                                 </button>
@@ -548,7 +573,7 @@ const ResourceManagement = () => {
                                         setShowForm(false);
                                         resetForm();
                                     }}
-                                    className="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700"
+                                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 font-medium transition-colors text-sm"
                                 >
                                     Cancel
                                 </button>

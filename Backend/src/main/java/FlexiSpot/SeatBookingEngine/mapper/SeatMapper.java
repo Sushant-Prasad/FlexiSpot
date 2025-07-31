@@ -32,7 +32,10 @@ public class SeatMapper {
         }
 
         Seat seat = new Seat();
-        seat.setId(seatDTO.getId());
+        // Only set ID if it's not null (for updates), let database auto-generate for new seats
+        if (seatDTO.getId() != null) {
+            seat.setId(seatDTO.getId());
+        }
         seat.setCode(seatDTO.getCode());
         seat.setLocation(seatDTO.getLocation());
         seat.setBuilding(seatDTO.getBuilding());
