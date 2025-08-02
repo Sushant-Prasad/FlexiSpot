@@ -15,22 +15,22 @@ public class JwtUtil {
     private static final String SECRET_KEY_STRING = "a8f$2kL!9zQw3rT6yUeXp0sVbNmCjH7dK8mN9oP0qR1sT2uV3wX4yZ5";
     private static final Key SECRET_KEY = Keys.hmacShaKeyFor(SECRET_KEY_STRING.getBytes());
 
-    public String generateToken(String name) {
+    public String generateToken(String email) {
         return Jwts.builder()
-                .setSubject(name) 
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
-
-    public String extractUsername(String token) {
-        return extractAllClaims(token).getSubject();
+    public String extractEmail(String jwt) {
+        return extractAllClaims(jwt).getSubject();
     }
 
-    public boolean validateToken(String token, String username) {
-        String extractedUsername = extractUsername(token);
-        return extractedUsername.equals(username) && !isTokenExpired(token);
+
+    public boolean validateToken(String token, String email) {
+        String extractedEmail = extractEmail(token);
+        return extractedEmail.equals(email) && !isTokenExpired(token);
     }
 
     private Claims extractAllClaims(String token) {
@@ -45,7 +45,9 @@ public class JwtUtil {
         return extractAllClaims(token).getExpiration().before(new Date());
     }
 
-    public String extractEmail(String jwt) {
-        return extractAllClaims(jwt).getSubject();
+    // Legacy method for backward compatibility
+    @Deprecated
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
     }
 }
