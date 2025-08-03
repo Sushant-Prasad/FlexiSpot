@@ -1,12 +1,19 @@
 const BASE_URL = 'http://localhost:1005/api/bookings';
 
-//Get 30-minute time slots for a seat on a specific date
+// Helper to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
+
+// Get 30-minute time slots for a seat on a specific date
 export const getTimeSlotsForSeat = async (seatId, date) => {
   const res = await fetch(`${BASE_URL}/seat/${seatId}/timeslots?date=${date}`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!res.ok) {
@@ -14,16 +21,14 @@ export const getTimeSlotsForSeat = async (seatId, date) => {
     throw new Error('Failed to fetch time slots for seat');
   }
 
-  return res.json(); //return List<TimeSlotStatus>
+  return res.json(); // return List<TimeSlotStatus>
 };
 
-//Book a seat
+// Book a seat
 export const bookSeat = async (bookingData) => {
   const res = await fetch(BASE_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(bookingData),
   });
 
@@ -35,10 +40,11 @@ export const bookSeat = async (bookingData) => {
   return res.json();
 };
 
-//Cancel a booking
+// Cancel a booking
 export const cancelBooking = async (id) => {
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
   });
 
   if (!res.ok) {
@@ -47,10 +53,17 @@ export const cancelBooking = async (id) => {
   }
 };
 
-//Get all bookings
+// Get all bookings
 export const getAllBookings = async () => {
-  const res = await fetch(BASE_URL);
-  if (!res.ok) throw new Error('Failed to fetch bookings');
+  const res = await fetch(BASE_URL, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!res.ok) {
+    console.error(`GET /bookings failed:`, res.status, await res.text());
+    throw new Error('Failed to fetch bookings');
+  }
+
   return res.json();
 };
-

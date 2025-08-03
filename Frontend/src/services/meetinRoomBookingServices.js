@@ -1,19 +1,29 @@
 const BASE_URL = 'http://localhost:1005/api/meeting-bookings';
 
-//Get all meeting room bookings
+// 🔐 Helper to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
+
+// ✅ Get all meeting room bookings
 export const getAllMeetingBookings = async () => {
-  const res = await fetch(BASE_URL);
+  const res = await fetch(BASE_URL, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error('Failed to fetch meeting bookings');
   return res.json();
 };
 
-//Book a meeting room
+// ✅ Book a meeting room
 export const bookMeetingRoom = async (bookingData) => {
   const res = await fetch(BASE_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(bookingData),
   });
 
@@ -25,10 +35,11 @@ export const bookMeetingRoom = async (bookingData) => {
   return res.json();
 };
 
-//Cancel a meeting booking
+// ✅ Cancel a meeting booking
 export const cancelMeetingBooking = async (id) => {
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
   });
 
   if (!res.ok) {
@@ -37,9 +48,13 @@ export const cancelMeetingBooking = async (id) => {
   }
 };
 
-// Get 1-hour time slots for a specific meeting room on a date
+// ✅ Get 1-hour time slots for a specific meeting room on a date
 export const getTimeSlotsForMeetingRoom = async (meetingRoomId, date) => {
-  const res = await fetch(`${BASE_URL}/room/${meetingRoomId}/timeslots?date=${date}`);
+  const res = await fetch(`${BASE_URL}/room/${meetingRoomId}/timeslots?date=${date}`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
   if (!res.ok) throw new Error('Failed to fetch meeting room time slots');
   return res.json();
 };

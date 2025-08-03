@@ -27,10 +27,7 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/meeting-bookings/**").permitAll()
-                        .requestMatchers("/api/bookings/**").permitAll()
-                        .requestMatchers("/api/meeting-rooms/**").permitAll()
-                        .requestMatchers("/api/seats/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic.disable())
