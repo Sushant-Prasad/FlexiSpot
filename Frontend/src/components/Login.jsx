@@ -31,6 +31,9 @@ function Login() {
 
         // ✅ STORE userId
         localStorage.setItem("userId", response.data.userId);
+       localStorage.setItem("username", response.data.username);
+
+
 
         // ✅ Store user role
         const userRole = response.data.role || "EMPLOYEE";

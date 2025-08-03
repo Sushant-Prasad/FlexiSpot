@@ -1,22 +1,20 @@
-
-import { Routes, Route, useLocation } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Features from './components/Features';
-import Footer from './components/Footer';
-import Register from './components/Register';
-import Login from './components/Login';
-import AdminLayout from './components/AdminLayout';
-import AdminDashboard from './components/AdminDashboard';
-import UsageAnalytics from './components/UsageAnalytics';
-import EmployeeLayout from './components/EmployeeLayout';
-import EmployeeDashboard from './components/EmployeeDashboard';
-import BookNow from './pages/BookNow';
-import ShowBooking from './pages/ShowBooking';
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import Features from "./components/Features";
+import Footer from "./components/Footer";
+import Register from "./components/Register";
+import Login from "./components/Login";
+import AdminLayout from "./components/AdminLayout";
+import AdminDashboard from "./components/AdminDashboard";
+import UsageAnalytics from "./components/UsageAnalytics";
+import EmployeeLayout from "./components/EmployeeLayout";
+import EmployeeDashboard from "./components/EmployeeDashboard";
+import BookNow from "./pages/BookNow";
+import ShowBooking from "./pages/ShowBooking";
+import { Toaster } from "react-hot-toast";
 
 function App() {
-  const location = useLocation();
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">
       {/* Show Navbar on all pages */}
@@ -24,12 +22,15 @@ function App() {
 
       <main className="flex-grow">
         <Routes>
-          <Route path="/" element={
-            <>
-              <Hero />
-              <Features />
-            </>
-          } />
+          <Route
+            path="/"
+            element={
+              <>
+                <Hero />
+                <Features />
+              </>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/employee" element={<EmployeeLayout />}>
@@ -48,6 +49,16 @@ function App() {
 
       {/* Show Footer on all pages */}
       <Footer />
+
+      {/* 🔥 Toast notifications centered */}
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          className: "text-sm rounded-md shadow-md",
+          duration: 3000,
+        }}
+      />
     </div>
   );
 }
