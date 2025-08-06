@@ -55,7 +55,7 @@ public class MeetingBookingController {
             @RequestParam("date") String date
     ) {
         LocalDate localDate = LocalDate.parse(date);
-        List<TimeSlotStatus> slots = bookingService.getTimeSlotsForMeetingRoom(meetingRoomId, localDate);
+        List<TimeSlotStatus> slots = bookingService.getTimeSlotStatusForMeetingRoom(meetingRoomId, localDate);
         return ResponseEntity.ok(slots);
     }
 }

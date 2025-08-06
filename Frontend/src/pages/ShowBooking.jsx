@@ -1,15 +1,26 @@
 import { useEffect, useState } from "react";
 import { cancelBooking, getAllBookings } from "../services/bookingServices";
-import { cancelMeetingBooking, getAllMeetingBookings } from "../services/meetinRoomBookingServices";
+import { cancelMeetingBooking, getAllMeetingBookings } from "../services/meetingRoomBookingServices";
 import dayjs from "dayjs";
 import clsx from "clsx";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { FiCalendar, FiClock, FiMapPin, FiUser, FiX } from "react-icons/fi";
 
 const ShowBooking = () => {
-  const userId = 2; // Hardcoded user ID
+  const navigate = useNavigate();
+  const userId = parseInt(localStorage.getItem("userId"));
   const [allBookings, setAllBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) {
+      toast.error("Please log in to view bookings.");
+      navigate("/login");
+      return;
+    }
+    fetchBookings();
+  }, []);
 
   const fetchBookings = async () => {
     try {
@@ -26,24 +37,17 @@ const ShowBooking = () => {
         .map((b) => ({ ...b, type: "meeting" }));
 
       const all = [...formattedSeatBookings, ...formattedMeetingBookings];
-
-      // Sort by date desc
       setAllBookings(all.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()));
     } catch (err) {
-      console.error(" Failed to fetch bookings", err);
+      console.error("Failed to fetch bookings", err);
       toast.error("Failed to load bookings");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
-
   const handleCancel = async (booking) => {
     if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-
     try {
       if (booking.type === "seat") {
         await cancelBooking(booking.id);
@@ -59,8 +63,6 @@ const ShowBooking = () => {
   };
 
   const now = dayjs();
-
-  // Booking is expired if the date+endTime is before now and it's marked EXPIRED
   const isExpired = (booking) => {
     const bookingEnd = dayjs(`${booking.date}T${booking.endTime}`);
     return booking.status === "EXPIRED" && bookingEnd.isBefore(now);
@@ -69,7 +71,6 @@ const ShowBooking = () => {
   const currentBookings = allBookings.filter(
     (b) => b.status === "ACTIVE" && !isExpired(b)
   );
-
   const pastBookings = allBookings.filter(
     (b) => b.status === "CANCELLED" || isExpired(b)
   );
@@ -101,7 +102,7 @@ const ShowBooking = () => {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className={`p-2 rounded-full ${booking.type === 'seat' ? 'bg-blue-100' : 'bg-green-100'}`}>
+            <div className={`p-2 rounded-full ${booking.type === 'seat' ? 'bg-blue-100' : 'bg-green-100'}`}> 
               {booking.type === 'seat' ? (
                 <FiUser className="text-blue-600" />
               ) : (
@@ -169,11 +170,6 @@ const ShowBooking = () => {
             <FiCalendar className="text-2xl text-blue-600" />
             <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
           </div>
-          <p className="text-gray-600">View and manage your workspace bookings.</p>
-        </div>
-
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your bookings...</p>
         </div>
       </div>
@@ -182,7 +178,6 @@ const ShowBooking = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
         <div className="flex items-center space-x-3 mb-2">
           <FiCalendar className="text-2xl text-blue-600" />
@@ -191,7 +186,6 @@ const ShowBooking = () => {
         <p className="text-gray-600">View and manage your workspace bookings.</p>
       </div>
 
-      {/* Current / Upcoming Bookings */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Current / Upcoming Bookings</h2>
@@ -204,7 +198,6 @@ const ShowBooking = () => {
             <div className="text-center py-8">
               <FiCalendar className="mx-auto text-4xl text-gray-400 mb-4" />
               <p className="text-gray-500">No upcoming bookings</p>
-              <p className="text-sm text-gray-400">Book a seat or meeting room to get started</p>
             </div>
           ) : (
             <div className="grid gap-6">{currentBookings.map((b) => renderBookingCard(b))}</div>
@@ -212,7 +205,6 @@ const ShowBooking = () => {
         </div>
       </div>
 
-      {/* Booking History */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Booking History</h2>
@@ -225,7 +217,6 @@ const ShowBooking = () => {
             <div className="text-center py-8">
               <FiClock className="mx-auto text-4xl text-gray-400 mb-4" />
               <p className="text-gray-500">No past bookings</p>
-              <p className="text-sm text-gray-400">Your booking history will appear here</p>
             </div>
           ) : (
             <div className="grid gap-6">{pastBookings.map((b) => renderBookingCard(b, true))}</div>
