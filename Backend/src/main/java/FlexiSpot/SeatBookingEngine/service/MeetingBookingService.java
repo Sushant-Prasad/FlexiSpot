@@ -120,7 +120,7 @@ public class MeetingBookingService {
     }
 
     // Get 1-hour time slot status for a meeting room
-    public List<TimeSlotStatus> getTimeSlotsForMeetingRoom(Long roomId, LocalDate date) {
+    public List<TimeSlotStatus> getTimeSlotStatusForMeetingRoom(Long roomId, LocalDate date) {
         List<MeetingBooking> bookings = meetingBookingRepo.findByRoomIdAndDate(roomId, date);
         List<TimeSlotStatus> timeSlots = new ArrayList<>();
 

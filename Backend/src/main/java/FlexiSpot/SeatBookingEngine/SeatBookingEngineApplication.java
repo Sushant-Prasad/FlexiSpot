@@ -13,11 +13,10 @@ public class SeatBookingEngineApplication {
 
 		Dotenv dotenv = Dotenv.load(); // loads .env automatically
 
-		System.setProperty("DB_USER", dotenv.get("DB_USER"));
-		System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
-		System.setProperty("DB_HOST", dotenv.get("DB_HOST"));
-		System.setProperty("DB_PORT", dotenv.get("DB_PORT"));
-		System.setProperty("DB_NAME", dotenv.get("DB_NAME"));
+		System.setProperty("db_username", dotenv.get("db_username"));
+		System.setProperty("db_password", dotenv.get("db_username"));
+		System.setProperty("db_url", dotenv.get("db_url"));
+		
 
 		//SpringApplication.run(MyApp.class, args);
 		SpringApplication.run(SeatBookingEngineApplication.class, args);
