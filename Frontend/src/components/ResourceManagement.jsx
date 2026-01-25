@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FiEdit, FiTrash2, FiPlus, FiSearch, FiFilter, FiX, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 
-const API_BASE_URL = 'http://localhost:1005/api';
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`;
+
 
 // Custom Popup Component
 const Popup = ({ isOpen, onClose, title, message, type = 'info', onConfirm }) => {
