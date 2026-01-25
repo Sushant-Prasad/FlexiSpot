@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -21,21 +20,25 @@ public class SeatManagementServiceImpl implements SeatManagementService {
     @Autowired
     private SeatMapper seatMapper;
 
+    // ========================
+    // CREATE
+    // ========================
     @Override
     public SeatDTO createSeat(SeatDTO seatDTO) {
+
         if (seatRepo.findByCode(seatDTO.getCode()).isPresent()) {
             throw new RuntimeException("Seat with code " + seatDTO.getCode() + " already exists");
         }
 
-        if (seatRepo.findById(seatDTO.getId()).isPresent()) {
-            throw new RuntimeException("Seat with desk ID " + seatDTO.getId() + " already exists");
-        }
-
         Seat seat = seatMapper.toEntity(seatDTO);
         Seat savedSeat = seatRepo.save(seat);
+
         return seatMapper.toDTO(savedSeat);
     }
 
+    // ========================
+    // READ
+    // ========================
     @Override
     public List<SeatDTO> getAllSeats() {
         return seatMapper.toDTOList(seatRepo.findAll());
@@ -43,9 +46,10 @@ public class SeatManagementServiceImpl implements SeatManagementService {
 
     @Override
     public SeatDTO getSeatById(Long id) {
-        return seatRepo.findById(id)
-                .map(seatMapper::toDTO)
+        Seat seat = seatRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seat not found with id: " + id));
+
+        return seatMapper.toDTO(seat);
     }
 
     @Override
@@ -55,22 +59,24 @@ public class SeatManagementServiceImpl implements SeatManagementService {
 
     @Override
     public List<SeatDTO> getSeatsByFilters(String location, String building, String floor, String segment) {
-        return seatMapper.toDTOList(seatRepo.findSeatsByFilters(location, building, floor, segment));
+        return seatMapper.toDTOList(
+                seatRepo.findSeatsByFilters(location, building, floor, segment)
+        );
     }
 
+    // ========================
+    // UPDATE
+    // ========================
     @Override
     public SeatDTO updateSeat(Long id, SeatDTO seatDTO) {
+
         Seat seat = seatRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seat not found with id: " + id));
 
+        // Check duplicate code (excluding same seat)
         if (!seat.getCode().equals(seatDTO.getCode()) &&
                 seatRepo.findByCode(seatDTO.getCode()).isPresent()) {
             throw new RuntimeException("Seat with code " + seatDTO.getCode() + " already exists");
-        }
-
-        if (!seat.getId().equals(seatDTO.getId()) &&
-                seatRepo.findById(seatDTO.getId()).isPresent()) {
-            throw new RuntimeException("Seat with desk ID " + seatDTO.getId() + " already exists");
         }
 
         seat.setCode(seatDTO.getCode());
@@ -79,13 +85,13 @@ public class SeatManagementServiceImpl implements SeatManagementService {
         seat.setFloor(seatDTO.getFloor());
         seat.setSegment(seatDTO.getSegment());
         seat.setIsAvailable(seatDTO.getIsAvailable());
-        seat.setId(seatDTO.getId());
 
         return seatMapper.toDTO(seatRepo.save(seat));
     }
 
     @Override
     public SeatDTO updateSeatAvailability(Long id, Boolean isAvailable) {
+
         Seat seat = seatRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seat not found with id: " + id));
 
@@ -93,6 +99,9 @@ public class SeatManagementServiceImpl implements SeatManagementService {
         return seatMapper.toDTO(seatRepo.save(seat));
     }
 
+    // ========================
+    // DELETE
+    // ========================
     @Override
     public void deleteSeat(Long id) {
         if (!seatRepo.existsById(id)) {
