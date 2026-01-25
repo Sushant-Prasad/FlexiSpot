@@ -3,6 +3,7 @@ import UsageAnalytics from "./UsageAnalytics";
 import ResourceManagement from "./ResourceManagement";
 import axios from "axios";
 import { FiBarChart, FiUsers, FiMapPin, FiCalendar, FiSettings, FiRefreshCw, FiTrendingUp, FiHome, FiMonitor } from "react-icons/fi";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('overview');
@@ -31,9 +32,9 @@ function AdminDashboard() {
 
             // Fetch total resources
             const [seatsResponse, meetingRoomsResponse, occupancyResponse] = await Promise.all([
-                axios.get('http://localhost:1005/api/seat-management', { headers: getAuthHeader() }),
-                axios.get('http://localhost:1005/api/meeting-room-management', { headers: getAuthHeader() }),
-                axios.get(`http://localhost:1005/api/analytics/occupancy-rate?date=${today}`, { headers: getAuthHeader() })
+                axios.get(`${API_BASE}/api/seat-management`, { headers: getAuthHeader() }),
+                axios.get(`${API_BASE}/api/meeting-room-management`, { headers: getAuthHeader() }),
+                axios.get(`${API_BASE}/api/analytics/occupancy-rate`, {params: { date: today }, headers: getAuthHeader() })
             ]);
 
             const totalSeats = seatsResponse.data.length;
