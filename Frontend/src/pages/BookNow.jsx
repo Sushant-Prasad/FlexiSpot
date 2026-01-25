@@ -3,7 +3,7 @@ import Sidebar from "../components/SeatBookingEngine/Sidebar";
 import { getFilteredSeats } from "../services/seatServices";
 import { getFilteredMeetingRooms } from "../services/meetingRoomServices";
 import { bookSeat } from "../services/bookingServices";
-import { bookMeetingRoom } from "../services/meetinRoomBookingServices";
+import { bookMeetingRoom } from "../services/meetingRoomBookingServices";
 import SeatCard from "../components/SeatBookingEngine/SeatCard";
 import MeetingRoomCard from "../components/SeatBookingEngine/MeetingRoomCard";
 import BookingForm from "../components/SeatBookingEngine/BookingForm";
