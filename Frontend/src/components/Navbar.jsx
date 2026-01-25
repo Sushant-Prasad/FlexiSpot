@@ -10,15 +10,18 @@ const Navbar = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Check if user is authenticated (you can modify this based on your auth logic)
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('userRole');
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('userRole')?.toUpperCase();
 
-    if (token) {
-      setIsAuthenticated(true);
-      setUserRole(role);
-    }
-  }, []);
+  if (token) {
+    setIsAuthenticated(true);
+    setUserRole(role);
+  } else {
+    setIsAuthenticated(false);
+    setUserRole(null);
+  }
+}, [location.pathname]);
+
 
   const handleLogout = () => {
     localStorage.clear();
