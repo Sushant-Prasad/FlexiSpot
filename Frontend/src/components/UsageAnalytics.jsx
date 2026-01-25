@@ -254,8 +254,7 @@ function UsageAnalytics() {
                 <div className="bg-red-100 border-l-4 border-red-500 p-4 mb-8 rounded-lg">
                     <p className="text-red-700 font-semibold">{error}</p>
                     <p className="text-red-600 text-sm">
-                        Ensure the backend server is running at http://localhost:1005 and
-                        CORS is configured.
+                        Ensure the backend server is running and CORS is configured correctly.
                     </p>
                 </div>
             )}
