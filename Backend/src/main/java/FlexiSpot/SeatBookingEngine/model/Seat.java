@@ -1,105 +1,80 @@
-package FlexiSpot.SeatBookingEngine.model;
+package FlexiSpot.SeatBookingEngine.controller;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import FlexiSpot.SeatBookingEngine.model.Seat;
+import FlexiSpot.SeatBookingEngine.repository.SeatRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Entity
-@Table(name = "seats")
-public class Seat {
+import java.util.List;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@RestController
+@RequestMapping("/api/seat-management")
+public class SeatController {
 
-    @NotBlank(message = "Seat code is required")
-    @Column(unique = true)
-    private String code;
+    private final SeatRepository seatRepository;
 
-    @NotBlank(message = "Location is required")
-    private String location;
-
-    @NotBlank(message = "Building is required")
-    private String building;
-
-    @NotBlank(message = "Floor is required")
-    private String floor; // like 1,2,3,ground floor,
-
-    @NotBlank(message = "Segment is required")
-    private String segment;
-
-    @NotNull
-    private Boolean isAvailable;
-
-    //Constructors
-    public Seat() {}
-    //All-args constructor
-    public Seat(Long id, String code, String location, String building, String floor, String segment, Boolean isAvailable) {
-        this.id = id;
-        this.code = code;
-        this.location = location;
-        this.building = building;
-        this.floor = floor;
-        this.segment = segment;
-        this.isAvailable = isAvailable;
+    public SeatController(SeatRepository seatRepository) {
+        this.seatRepository = seatRepository;
     }
 
-    //Getters and Setters
-
-    public Long getId() {
-        return id;
+    // ✅ GET ALL SEATS
+    @GetMapping
+    public ResponseEntity<List<Seat>> getAllSeats() {
+        return ResponseEntity.ok(seatRepository.findAll());
     }
 
-    public String getCode() {
-        return code;
+    // ✅ CREATE SEAT (IMPORTANT FIX)
+    @PostMapping
+    public ResponseEntity<Seat> createSeat(@Valid @RequestBody Seat seat) {
+
+        // 🔴 CRITICAL LINE (FIXES "id must not be null")
+        seat.setId(null);
+
+        Seat savedSeat = seatRepository.save(seat);
+        return ResponseEntity.ok(savedSeat);
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    // ✅ UPDATE SEAT (IMPORTANT FIX)
+    @PutMapping("/{id}")
+    public ResponseEntity<Seat> updateSeat(
+            @PathVariable Long id,
+            @Valid @RequestBody Seat seat) {
+
+        if (!seatRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // 🔴 CRITICAL LINE
+        seat.setId(id);
+
+        Seat updatedSeat = seatRepository.save(seat);
+        return ResponseEntity.ok(updatedSeat);
     }
 
-    public String getLocation() {
-        return location;
+    // ✅ DELETE SEAT
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSeat(@PathVariable Long id) {
+
+        if (!seatRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        seatRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
+    // ✅ TOGGLE AVAILABILITY
+    @PatchMapping("/{id}/availability")
+    public ResponseEntity<Seat> updateAvailability(
+            @PathVariable Long id,
+            @RequestParam Boolean isAvailable) {
 
-    public String getBuilding() {
-        return building;
+        return seatRepository.findById(id)
+                .map(seat -> {
+                    seat.setIsAvailable(isAvailable);
+                    return ResponseEntity.ok(seatRepository.save(seat));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
-
-    public void setBuilding(String building) {
-        this.building = building;
-    }
-
-    public String getFloor() {
-        return floor;
-    }
-
-    public void setFloor(String floor) {
-        this.floor = floor;
-    }
-
-    public String getSegment() {
-        return segment;
-    }
-
-    public void setSegment(String segment) {
-        this.segment = segment;
-    }
-
-    public Boolean getIsAvailable() {
-        return isAvailable;
-    }
-
-    public void setIsAvailable(Boolean available) {
-        isAvailable = available;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
 }
