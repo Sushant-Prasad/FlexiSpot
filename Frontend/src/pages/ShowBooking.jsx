@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { cancelBooking, getAllBookings } from "../services/bookingServices";
-import { cancelMeetingBooking, getAllMeetingBookings } from "../services/meetinRoomBookingServices";
+import { cancelMeetingBooking, getAllMeetingBookings } from "../services/meetingRoomBookingServices";
 import dayjs from "dayjs";
 import clsx from "clsx";
 import { toast } from "react-hot-toast";

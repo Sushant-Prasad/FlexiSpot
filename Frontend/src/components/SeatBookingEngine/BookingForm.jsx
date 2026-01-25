@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getTimeSlotsForSeat } from "../../services/bookingServices";
 import toast from "react-hot-toast";
-import { getTimeSlotsForMeetingRoom } from "../../services/meetinRoomBookingServices";
+import { getTimeSlotsForMeetingRoom } from "../../services/meetingRoomBookingServices";
 import { FiCalendar, FiClock, FiX, FiCheck } from "react-icons/fi";
 
 const BookingForm = ({

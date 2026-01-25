@@ -9,7 +9,7 @@ import {
 import { FaChair } from "react-icons/fa";
 
 import { getAllBookings } from "../services/bookingServices";
-import { getAllMeetingBookings } from "../services/meetinRoomBookingServices";
+import { getAllMeetingBookings } from "../services/meetingRoomBookingServices";
 import dayjs from "dayjs";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";

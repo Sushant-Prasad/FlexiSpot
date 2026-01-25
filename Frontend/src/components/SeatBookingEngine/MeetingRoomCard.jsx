@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { DoorOpen, MapPin, Building2, Layers } from "lucide-react";
-import { getTimeSlotsForMeetingRoom } from "../../services/meetinRoomBookingServices";
+import { getTimeSlotsForMeetingRoom } from "../../services/meetingRoomBookingServices";
 import dayjs from "dayjs";
 
 const MeetingRoomCard = ({ room, onBook, viewMode = "grid" }) => {
