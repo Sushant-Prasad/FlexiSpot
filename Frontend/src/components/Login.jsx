@@ -3,7 +3,7 @@ import { FiMail, FiLock } from "react-icons/fi";
 import { FaUserShield } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+const API_BASE = import.meta.env.VITE_API_URL;
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({
@@ -22,9 +22,10 @@ function Login() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:1005/auth/login",
-        loginData
-      );
+  `${API_BASE}/auth/login`,
+  loginData
+);
+
 
       if (response.data.success && response.data.token) {
         localStorage.setItem("token", response.data.token);
