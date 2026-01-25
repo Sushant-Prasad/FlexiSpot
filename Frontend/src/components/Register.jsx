@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { FiMail, FiLock, FiUser, FiPhone } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +28,7 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:1005/auth/register", register);
+      const response = await axios.post(`${API_BASE}/auth/register`, register);
       if (response.data.success) {
         setMsg("Registration successful! You can now login.");
         setShowMsg(true);
