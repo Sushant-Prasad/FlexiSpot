@@ -34,21 +34,18 @@ public class User {
     @NotBlank(message = "Role is required")
     private String role;
 
-    @NotBlank(message = "Department is required")
-    private String department;
-
     // === Constructors ===
 
     public User() {}
 
-    public User(Long id, String name, String email, String phoneNumber, String password, String confirmPassword, Integer empId, String role, String department) {
+    public User(Long id, String name, String email, String phoneNumber, String password, String confirmPassword, Integer empId, String role) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.role = role;
-        this.department = department;
+
     }
 
     // === Getters and Setters ===
@@ -81,7 +78,5 @@ public class User {
 
     public void setRole(String role) { this.role = role; }
 
-    public String getDepartment() { return department; }
 
-    public void setDepartment(String department) { this.department = department; }
 }
