@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 @Component
 public class SeatMapper {
 
+    // ✅ Entity → DTO
     public SeatDTO toDTO(Seat seat) {
         if (seat == null) {
             return null;
@@ -26,13 +27,14 @@ public class SeatMapper {
         );
     }
 
+    // ✅ DTO → Entity (NO ID HANDLING HERE)
     public Seat toEntity(SeatDTO seatDTO) {
         if (seatDTO == null) {
             return null;
         }
 
         Seat seat = new Seat();
-        seat.setId(seatDTO.getId());
+        // ❌ DO NOT set ID here
         seat.setCode(seatDTO.getCode());
         seat.setLocation(seatDTO.getLocation());
         seat.setBuilding(seatDTO.getBuilding());
