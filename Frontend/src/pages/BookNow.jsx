@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../components/SeatBookingEngine/Sidebar";
-import { getFilteredSeats } from "../services/seatServices";
+import { getFilteredSeats } from "../services/seatSServices";
 import { getFilteredMeetingRooms } from "../services/meetingRoomServices";
 import { bookSeat } from "../services/bookingServices";
 import { bookMeetingRoom } from "../services/meetingRoomBookingServices";
