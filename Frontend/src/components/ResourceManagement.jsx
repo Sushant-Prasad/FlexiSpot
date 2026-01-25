@@ -88,7 +88,7 @@ const ResourceManagement = () => {
         floor: '',
         segment: '',
         isAvailable: true,
-        deskId: ''
+        
     });
 
     // Filter states
@@ -191,7 +191,7 @@ const ResourceManagement = () => {
             floor: '',
             segment: '',
             isAvailable: true,
-            deskId: ''
+            
         });
         setEditingItem(null);
     };
@@ -246,7 +246,7 @@ const ResourceManagement = () => {
             floor: item.floor,
             segment: item.segment || '',
             isAvailable: item.isAvailable,
-            deskId: item.deskId || ''
+            
         });
         setShowForm(true);
     };
@@ -512,16 +512,7 @@ const ResourceManagement = () => {
                                             required
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Desk ID</label>
-                                        <input
-                                            type="text"
-                                            value={formData.deskId}
-                                            onChange={(e) => setFormData({ ...formData, deskId: e.target.value })}
-                                            className="w-full border rounded px-3 py-2"
-                                            required
-                                        />
-                                    </div>
+                                    
                                 </>
                             )}
                             <div>
