@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API_URL = 'http://localhost:1005/analytics';
+const API_URL = `${import.meta.env.VITE_API_URL}/analytics`;
 
 // Helper to get auth header
 const authHeader = () => {

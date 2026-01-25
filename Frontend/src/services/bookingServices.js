@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:1005/api/bookings';
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api/bookings`;
 
 // Helper to get auth headers
 const getAuthHeaders = () => {

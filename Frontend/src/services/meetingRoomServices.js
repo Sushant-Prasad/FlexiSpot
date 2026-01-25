@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:1005/api/meeting-rooms';
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api/meeting-rooms`;
 
 // 🔐 Helper to get auth headers
 const getAuthHeaders = () => {
