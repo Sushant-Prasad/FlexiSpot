@@ -56,14 +56,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             if (optionalUser.isPresent()) {
                 User user = optionalUser.get();
 
-                // ✅ CRITICAL FIX: manually attach ROLE_
-                String role = "ROLE_" + user.getRole(); // EMPLOYEE → ROLE_EMPLOYEE
+                // 🔑 THIS LINE IS THE FIX
+                String role = "ROLE_" + user.getRole().toUpperCase();
 
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                user,                                  // principal
+                                user,
                                 null,
-                                List.of(new SimpleGrantedAuthority(role)) // authorities
+                                List.of(new SimpleGrantedAuthority(role))
                         );
 
                 authToken.setDetails(
