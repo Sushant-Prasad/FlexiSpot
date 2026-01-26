@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/seat-management")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
 public class SeatManagementController {
 
     @Autowired

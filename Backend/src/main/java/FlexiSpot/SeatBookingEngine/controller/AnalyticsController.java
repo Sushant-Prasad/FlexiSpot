@@ -20,7 +20,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/analytics")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
