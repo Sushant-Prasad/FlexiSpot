@@ -35,45 +35,35 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             FilterChain chain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
-
-        String email = null;
-        String jwt = null;
+        String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
+            String jwt = authHeader.substring(7);
+
             try {
-                email = jwtUtil.extractEmail(jwt);
+                String email = jwtUtil.extractEmail(jwt);
+
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    User user = userRepo.findByEmail(email).orElse(null);
+
+                    if (user != null) {
+                        UsernamePasswordAuthenticationToken auth =
+                                new UsernamePasswordAuthenticationToken(
+                                        user,
+                                        null,
+                                        List.of() // 🔥 NO ROLES
+                                );
+
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
+                }
             } catch (Exception e) {
                 System.out.println("JWT error: " + e.getMessage());
-            }
-        }
-
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            Optional<User> optionalUser = userRepo.findByEmail(email);
-
-            if (optionalUser.isPresent()) {
-                User user = optionalUser.get();
-
-                // 🔑 THIS LINE IS THE FIX
-                String role = "ROLE_" + user.getRole().toUpperCase();
-
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                user,
-                                null,
-                                List.of(new SimpleGrantedAuthority(role))
-                        );
-
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
         chain.doFilter(request, response);
     }
 }
+
+
