@@ -1,80 +1,111 @@
-package FlexiSpot.SeatBookingEngine.controller;
+package FlexiSpot.SeatBookingEngine.model;
 
-import FlexiSpot.SeatBookingEngine.model.Seat;
-import FlexiSpot.SeatBookingEngine.repository.SeatRepository;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-import java.util.List;
+@Entity
+@Table(name = "seats")
+public class Seat {
 
-@RestController
-@RequestMapping("/api/seat-management")
-public class SeatController {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private final SeatRepository seatRepository;
+    @NotBlank(message = "Seat code is required")
+    @Column(unique = true, nullable = false)
+    private String code;
 
-    public SeatController(SeatRepository seatRepository) {
-        this.seatRepository = seatRepository;
+    @NotBlank(message = "Location is required")
+    @Column(nullable = false)
+    private String location;
+
+    @NotBlank(message = "Building is required")
+    @Column(nullable = false)
+    private String building;
+
+    @NotBlank(message = "Floor is required")
+    @Column(nullable = false)
+    private String floor;
+
+    @NotBlank(message = "Segment is required")
+    @Column(nullable = false)
+    private String segment;
+
+    @NotNull
+    @Column(nullable = false)
+    private Boolean isAvailable;
+
+    // ✅ No-args constructor (required by JPA)
+    public Seat() {
     }
 
-    // ✅ GET ALL SEATS
-    @GetMapping
-    public ResponseEntity<List<Seat>> getAllSeats() {
-        return ResponseEntity.ok(seatRepository.findAll());
+    // ✅ Constructor for CREATE (NO id here)
+    public Seat(String code,
+                String location,
+                String building,
+                String floor,
+                String segment,
+                Boolean isAvailable) {
+        this.code = code;
+        this.location = location;
+        this.building = building;
+        this.floor = floor;
+        this.segment = segment;
+        this.isAvailable = isAvailable;
     }
 
-    // ✅ CREATE SEAT (IMPORTANT FIX)
-    @PostMapping
-    public ResponseEntity<Seat> createSeat(@Valid @RequestBody Seat seat) {
-
-        // 🔴 CRITICAL LINE (FIXES "id must not be null")
-        seat.setId(null);
-
-        Seat savedSeat = seatRepository.save(seat);
-        return ResponseEntity.ok(savedSeat);
+    // 🔹 Getters only (no setId)
+    public Long getId() {
+        return id;
     }
 
-    // ✅ UPDATE SEAT (IMPORTANT FIX)
-    @PutMapping("/{id}")
-    public ResponseEntity<Seat> updateSeat(
-            @PathVariable Long id,
-            @Valid @RequestBody Seat seat) {
-
-        if (!seatRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // 🔴 CRITICAL LINE
-        seat.setId(id);
-
-        Seat updatedSeat = seatRepository.save(seat);
-        return ResponseEntity.ok(updatedSeat);
+    public String getCode() {
+        return code;
     }
 
-    // ✅ DELETE SEAT
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSeat(@PathVariable Long id) {
-
-        if (!seatRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        seatRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public String getLocation() {
+        return location;
     }
 
-    // ✅ TOGGLE AVAILABILITY
-    @PatchMapping("/{id}/availability")
-    public ResponseEntity<Seat> updateAvailability(
-            @PathVariable Long id,
-            @RequestParam Boolean isAvailable) {
+    public String getBuilding() {
+        return building;
+    }
 
-        return seatRepository.findById(id)
-                .map(seat -> {
-                    seat.setIsAvailable(isAvailable);
-                    return ResponseEntity.ok(seatRepository.save(seat));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public String getFloor() {
+        return floor;
+    }
+
+    public String getSegment() {
+        return segment;
+    }
+
+    public Boolean getIsAvailable() {
+        return isAvailable;
+    }
+
+    // 🔹 Setters (NO setId)
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setBuilding(String building) {
+        this.building = building;
+    }
+
+    public void setFloor(String floor) {
+        this.floor = floor;
+    }
+
+    public void setSegment(String segment) {
+        this.segment = segment;
+    }
+
+    public void setIsAvailable(Boolean available) {
+        this.isAvailable = available;
     }
 }

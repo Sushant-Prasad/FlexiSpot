@@ -2,14 +2,14 @@ package FlexiSpot.SeatBookingEngine.mapper;
 
 import FlexiSpot.SeatBookingEngine.DTO.BookingDTO;
 import FlexiSpot.SeatBookingEngine.model.Booking;
-import FlexiSpot.SeatBookingEngine.model.BookingStatus;
-import FlexiSpot.SeatBookingEngine.model.Seat;
-import FlexiSpot.SeatBookingEngine.model.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BookingMapper {
 
+    // ======================
+    // Entity → DTO
+    // ======================
     public BookingDTO toDTO(Booking booking) {
         if (booking == null) return null;
 
@@ -34,31 +34,22 @@ public class BookingMapper {
         return dto;
     }
 
+    // ======================
+    // DTO → Entity
+    // ======================
     public Booking toEntity(BookingDTO dto) {
         if (dto == null) return null;
 
         Booking booking = new Booking();
 
-        booking.setId(dto.getId());
+        // ❌ DO NOT set booking ID (DB handles it)
         booking.setDate(dto.getDate());
         booking.setStartTime(dto.getStartTime());
         booking.setEndTime(dto.getEndTime());
+        booking.setStatus(dto.getStatus());
 
-        if (dto.getUserId() != null) {
-            User user = new User();
-            user.setId(dto.getUserId());
-            booking.setUser(user);
-        }
-
-        if (dto.getSeatId() != null) {
-            Seat seat = new Seat();
-            seat.setId(dto.getSeatId());
-            booking.setSeat(seat);
-        }
-
-        if (dto.getStatus() != null) {
-            booking.setStatus(dto.getStatus());
-        }
+        // ❌ DO NOT set User / Seat here
+        // ✔ They must be fetched & set in Service layer
 
         return booking;
     }
