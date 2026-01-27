@@ -35,73 +35,92 @@ public class MeetingBookingService {
     @Autowired
     private MeetingBookingMapper mapper;
 
-    // Book a meeting room with validations
-    public MeetingBookingDTO bookRoom(MeetingBookingDTO dto) {
-        MeetingBooking booking = mapper.toEntity(dto);
+    // ==================================================
+    // Book a meeting room (JWT-based user)
+    // ==================================================
+    public MeetingBookingDTO bookRoom(MeetingBookingDTO dto, String userEmail) {
 
-        Long roomId = booking.getRoom().getId();
-        Long userId = booking.getUser().getId();
-        LocalDate date = booking.getDate();
-        LocalTime startTime = booking.getStartTime();
-        LocalTime endTime = booking.getEndTime();
+        // 🔑 Fetch user from JWT email
+        User user = userRepo.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Validate times
+        // 🏢 Fetch meeting room
+        MeetingRoom room = meetingRoomRepo.findById(dto.getMeetingRoomId())
+                .orElseThrow(() -> new RuntimeException("Meeting room not found"));
+
+        LocalDate date = dto.getDate();
+        LocalTime startTime = dto.getStartTime();
+        LocalTime endTime = dto.getEndTime();
+
+        // ⏱ Validate time
         if (startTime == null || endTime == null || !startTime.isBefore(endTime)) {
             throw new RuntimeException("❌ Invalid start or end time.");
         }
 
-        // Booking must be exactly 1 hour
+        // Exactly 1 hour booking
         if (!startTime.plusHours(1).equals(endTime)) {
             throw new RuntimeException("❌ Meeting room bookings must be exactly 1 hour.");
         }
 
-        // Must be aligned to full hours (e.g., 9:00, 10:00)
-        if (startTime.getMinute() != 0 || endTime.getMinute() != 0) {
-            throw new RuntimeException("❌ Booking time must align to hourly slots (e.g., 10:00 to 11:00).");
+        // Align to full hour
+        if (startTime.getMinute() != 0) {
+            throw new RuntimeException("❌ Booking time must align to hourly slots.");
         }
 
-        // Conflict check
-        boolean isConflict = !meetingBookingRepo
+        // ❗ Conflict check
+        boolean conflict = !meetingBookingRepo
                 .findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
-                        roomId, date, endTime, startTime
+                        room.getId(),
+                        date,
+                        endTime,
+                        startTime
                 ).isEmpty();
 
-        if (isConflict) {
+        if (conflict) {
             throw new RuntimeException("❌ Room already booked for the selected time slot.");
         }
 
-        // Fetch room & user
-        MeetingRoom room = meetingRoomRepo.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("Room not found"));
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        booking.setRoom(room);
+        // ✅ Create booking
+        MeetingBooking booking = new MeetingBooking();
         booking.setUser(user);
+        booking.setRoom(room);
+        booking.setDate(date);
+        booking.setStartTime(startTime);
+        booking.setEndTime(endTime);
         booking.setStatus(BookingStatus.ACTIVE);
 
-        MeetingBooking saved = meetingBookingRepo.save(booking);
-        return mapper.toDTO(saved);
+        return mapper.toDTO(meetingBookingRepo.save(booking));
     }
 
-    // Cancel a booking (not allowed within 3 hours of start)
+    // ==================================================
+    // Cancel meeting booking (3-hour restriction)
+    // ==================================================
     public void cancelMeetingBooking(Long bookingId) {
+
         MeetingBooking booking = meetingBookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime bookingStart = LocalDateTime.of(booking.getDate(), booking.getStartTime());
+        LocalDateTime bookingStart =
+                LocalDateTime.of(booking.getDate(), booking.getStartTime());
 
         if (now.plusHours(3).isAfter(bookingStart)) {
-            throw new IllegalStateException("❌ Cannot cancel meeting within 3 hours of start time.");
+            throw new IllegalStateException(
+                    "❌ Cannot cancel meeting within 3 hours of start time."
+            );
         }
 
         booking.setStatus(BookingStatus.CANCELLED);
         meetingBookingRepo.save(booking);
 
+        // Restore room availability if no future active bookings
         MeetingRoom room = booking.getRoom();
         boolean hasOtherActiveBookings = meetingBookingRepo
-                .findByRoomIdAndDateAndStatus(room.getId(), LocalDate.now(), BookingStatus.ACTIVE)
+                .findByRoomIdAndDateAndStatus(
+                        room.getId(),
+                        LocalDate.now(),
+                        BookingStatus.ACTIVE
+                )
                 .stream()
                 .anyMatch(b -> b.getEndTime().isAfter(LocalTime.now()));
 
@@ -111,7 +130,9 @@ public class MeetingBookingService {
         }
     }
 
+    // ==================================================
     // Get all bookings
+    // ==================================================
     public List<MeetingBookingDTO> getAllBookings() {
         return meetingBookingRepo.findAll()
                 .stream()
@@ -119,34 +140,45 @@ public class MeetingBookingService {
                 .collect(Collectors.toList());
     }
 
-    // Get 1-hour time slot status for a meeting room
+    // ==================================================
+    // Get 1-hour time slot status
+    // ==================================================
     public List<TimeSlotStatus> getTimeSlotsForMeetingRoom(Long roomId, LocalDate date) {
-        List<MeetingBooking> bookings = meetingBookingRepo.findByRoomIdAndDate(roomId, date);
+
+        List<MeetingBooking> bookings =
+                meetingBookingRepo.findByRoomIdAndDate(roomId, date);
+
         List<TimeSlotStatus> timeSlots = new ArrayList<>();
 
-        LocalTime start = LocalTime.of(9, 0); // Working hours start
-        LocalTime end = LocalTime.of(18, 0);  // Working hours end
+        LocalTime start = LocalTime.of(9, 0);
+        LocalTime end = LocalTime.of(18, 0);
 
         while (start.isBefore(end)) {
             LocalTime slotEnd = start.plusHours(1);
             final LocalTime slotStart = start;
-            final LocalTime slotEndCopy = slotEnd;
 
             MeetingBooking matched = bookings.stream()
-                    .filter(b -> b.getStartTime().isBefore(slotEndCopy) && b.getEndTime().isAfter(slotStart))
+                    .filter(b ->
+                            b.getStartTime().isBefore(slotEnd)
+                                    && b.getEndTime().isAfter(slotStart)
+                    )
                     .findFirst()
                     .orElse(null);
 
             if (matched != null) {
-                timeSlots.add(new TimeSlotStatus(
-                        slotStart,
-                        slotEndCopy,
-                        true,
-                        matched.getId(),
-                        matched.getUser().getName()
-                ));
+                timeSlots.add(
+                        new TimeSlotStatus(
+                                slotStart,
+                                slotEnd,
+                                true,
+                                matched.getId(),
+                                matched.getUser().getName()
+                        )
+                );
             } else {
-                timeSlots.add(new TimeSlotStatus(slotStart, slotEndCopy, false));
+                timeSlots.add(
+                        new TimeSlotStatus(slotStart, slotEnd, false)
+                );
             }
 
             start = slotEnd;
