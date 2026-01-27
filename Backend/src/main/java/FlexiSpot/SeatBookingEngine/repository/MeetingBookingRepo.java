@@ -14,26 +14,40 @@ import java.util.List;
 @Repository
 public interface MeetingBookingRepo extends JpaRepository<MeetingBooking, Long> {
 
-    // Get all bookings for a specific date
-    List<MeetingBooking> findByDate(LocalDate date);
+    // =====================================
+    // ✅ ONLY ACTIVE bookings (IMPORTANT)
+    // =====================================
+    List<MeetingBooking> findByRoomIdAndDateAndStatus(
+            Long roomId,
+            LocalDate date,
+            BookingStatus status
+    );
 
-    // Check for time conflict
-    List<MeetingBooking> findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
+    // =====================================
+    // ✅ Conflict check (ACTIVE only)
+    // =====================================
+    List<MeetingBooking> findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndStatus(
             Long roomId,
             LocalDate date,
             LocalTime endTime,
-            LocalTime startTime
+            LocalTime startTime,
+            BookingStatus status
     );
-    List<MeetingBooking> findByRoomIdAndDateAndStatus(Long roomId, LocalDate date, BookingStatus status);
 
-    @Query("SELECT mb FROM MeetingBooking mb JOIN FETCH mb.room WHERE (mb.date < :today OR (mb.date = :today AND mb.endTime < :now)) AND mb.status = :status")
-    List<MeetingBooking> findExpiredBookingsWithRoom(LocalDate today, LocalTime now, BookingStatus status);
-
-
-
-    // Get all bookings for a specific room on a specific date
-    List<MeetingBooking> findByRoomIdAndDate(
-            Long roomId,
-            LocalDate date
+    // =====================================
+    // Scheduler: expire old bookings
+    // =====================================
+    @Query("""
+        SELECT mb FROM MeetingBooking mb
+        JOIN FETCH mb.room
+        WHERE (mb.date < :today OR (mb.date = :today AND mb.endTime < :now))
+        AND mb.status = :status
+    """)
+    List<MeetingBooking> findExpiredBookingsWithRoom(
+            @Param("today") LocalDate today,
+            @Param("now") LocalTime now,
+            @Param("status") BookingStatus status
     );
+
 }
+

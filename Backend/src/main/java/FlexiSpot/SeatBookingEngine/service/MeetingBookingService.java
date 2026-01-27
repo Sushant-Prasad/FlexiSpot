@@ -63,12 +63,14 @@ public class MeetingBookingService {
             throw new RuntimeException("❌ Booking must start on full hour.");
         }
 
+        // ✅ ONLY ACTIVE bookings block availability
         boolean conflict = !meetingBookingRepo
-                .findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
+                .findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndStatus(
                         room.getId(),
                         date,
                         endTime,
-                        startTime
+                        startTime,
+                        BookingStatus.ACTIVE
                 ).isEmpty();
 
         if (conflict) {
@@ -87,7 +89,7 @@ public class MeetingBookingService {
     }
 
     // ==================================================
-    // Cancel meeting booking (3-hour rule) ✅ FIXED
+    // Cancel meeting booking (3-hour rule)
     // ==================================================
     public void cancelMeetingBooking(Long bookingId) {
 
@@ -108,27 +110,9 @@ public class MeetingBookingService {
             );
         }
 
+        // ✅ JUST CANCEL — NO availability logic
         booking.setStatus(BookingStatus.CANCELLED);
         meetingBookingRepo.save(booking);
-
-        // 🔥 SAME LOGIC AS SEAT BOOKING
-        MeetingRoom room = booking.getRoom();
-        LocalDate bookingDate = booking.getDate();
-        LocalTime bookingStartTime = booking.getStartTime();
-
-        boolean hasFutureBookings = meetingBookingRepo
-                .findByRoomIdAndDateAndStatus(
-                        room.getId(),
-                        bookingDate,
-                        BookingStatus.ACTIVE
-                )
-                .stream()
-                .anyMatch(b -> b.getEndTime().isAfter(bookingStartTime));
-
-        if (!hasFutureBookings) {
-            room.setIsAvailable(true);
-            meetingRoomRepo.save(room);
-        }
     }
 
     // ==================================================
@@ -142,12 +126,17 @@ public class MeetingBookingService {
     }
 
     // ==================================================
-    // Get 1-hour time slots
+    // Get 1-hour time slots (SOURCE OF TRUTH)
     // ==================================================
     public List<TimeSlotStatus> getTimeSlotsForMeetingRoom(Long roomId, LocalDate date) {
 
+        // ✅ ONLY ACTIVE bookings
         List<MeetingBooking> bookings =
-                meetingBookingRepo.findByRoomIdAndDate(roomId, date);
+                meetingBookingRepo.findByRoomIdAndDateAndStatus(
+                        roomId,
+                        date,
+                        BookingStatus.ACTIVE
+                );
 
         List<TimeSlotStatus> timeSlots = new ArrayList<>();
 
