@@ -33,6 +33,8 @@ public interface MeetingBookingRepo extends JpaRepository<MeetingBooking, Long> 
             LocalTime startTime,
             BookingStatus status
     );
+    // Used by AnalyticsService
+    List<MeetingBooking> findByDate(LocalDate date);
 
     // =====================================
     // Scheduler: expire old bookings
