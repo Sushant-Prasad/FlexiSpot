@@ -102,6 +102,7 @@ public class MeetingBookingService {
         LocalDateTime cancelDeadline = bookingStart.minusHours(3);
         LocalDateTime now = LocalDateTime.now(indiaZone);
 
+        // 🚫 3-hour restriction
         if (!now.isBefore(cancelDeadline)) {
             throw new IllegalStateException(
                     "❌ You cannot cancel the meeting room within 3 hours of the start time."
@@ -113,20 +114,25 @@ public class MeetingBookingService {
 
         MeetingRoom room = booking.getRoom();
 
+        // ✅ CHECK FUTURE BOOKINGS CORRECTLY
+        LocalDate today = LocalDate.now(indiaZone);
+        LocalTime nowTime = LocalTime.now(indiaZone);
+
         boolean hasFutureBookings = meetingBookingRepo
                 .findByRoomIdAndDateAndStatus(
                         room.getId(),
-                        booking.getDate(),
+                        today,
                         BookingStatus.ACTIVE
                 )
                 .stream()
-                .anyMatch(b -> b.getEndTime().isAfter(booking.getStartTime()));
+                .anyMatch(b -> b.getEndTime().isAfter(nowTime));
 
         if (!hasFutureBookings) {
             room.setIsAvailable(true);
             meetingRoomRepo.save(room);
         }
     }
+
 
     // ==================================================
     // Get all bookings
