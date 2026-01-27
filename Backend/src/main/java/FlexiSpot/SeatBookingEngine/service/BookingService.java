@@ -109,8 +109,9 @@ public class BookingService {
 
         LocalDateTime cancelDeadline = bookingStart.minusHours(2);
 
-        // 🚫 BLOCK cancellation at or after deadline
-        if (!LocalDateTime.now().isBefore(cancelDeadline)) {
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+
+        if (!now.isBefore(cancelDeadline)) {
             throw new IllegalStateException(
                     "❌ You cannot cancel the booking within 2 hours of the start time."
             );
@@ -118,22 +119,6 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepo.save(booking);
-
-        // Restore seat only if no future ACTIVE bookings exist
-        boolean hasFutureBookings = bookingRepo
-                .findBySeatIdAndDateAndStatus(
-                        booking.getSeat().getId(),
-                        booking.getDate(),
-                        BookingStatus.ACTIVE
-                )
-                .stream()
-                .anyMatch(b -> b.getEndTime().isAfter(booking.getStartTime()));
-
-        if (!hasFutureBookings) {
-            Seat seat = booking.getSeat();
-            seat.setIsAvailable(true);
-            seatRepo.save(seat);
-        }
     }
 
 
