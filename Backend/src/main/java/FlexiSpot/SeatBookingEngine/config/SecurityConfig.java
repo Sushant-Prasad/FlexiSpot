@@ -20,21 +20,27 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter)
+            throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ VERY IMPORTANT: allow preflight
+                        // Preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // ✅ public auth endpoints
+                        // Public
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/seats/**").permitAll()
+                        .requestMatchers("/api/meeting-rooms/**").permitAll()
 
-                        // ✅ allow everything else (JWT filter handles identity)
-                        .anyRequest().permitAll()
+                        // 🔐 PROTECTED (VERY IMPORTANT)
+                        .requestMatchers("/api/bookings/**").authenticated()
+                        .requestMatchers("/api/meeting-bookings/**").authenticated()
+
+                        .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form.disable());
@@ -57,18 +63,15 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(
                 List.of("https://flexispot.onrender.com")
         );
-
         configuration.setAllowedMethods(
                 List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
         );
-
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
+
