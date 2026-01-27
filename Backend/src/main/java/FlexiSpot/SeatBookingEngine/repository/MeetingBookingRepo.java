@@ -48,6 +48,7 @@ public interface MeetingBookingRepo extends JpaRepository<MeetingBooking, Long> 
             @Param("now") LocalTime now,
             @Param("status") BookingStatus status
     );
-
+    // Get all bookings for a specific room on a specific date
+    List<MeetingBooking> findByRoomIdAndDate( Long roomId, LocalDate date );
 }
 
