@@ -9,6 +9,7 @@ import FlexiSpot.SeatBookingEngine.service.BookingService;
 import FlexiSpot.SeatBookingEngine.validation.OnUserBooking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,16 +27,26 @@ public class BookingController {
     @Autowired
     private BookingMapper bookingMapper;
 
-    //Book a seat
+    // ============================
+    // Book a seat (JWT-based user)
+    // ============================
     @Validated(OnUserBooking.class)
     @PostMapping
-    public ResponseEntity<BookingDTO> bookSeat(@RequestBody BookingDTO bookingDTO) {
-        Booking booking = bookingMapper.toEntity(bookingDTO);
-        Booking savedBooking = bookingService.bookSeat(booking);
+    public ResponseEntity<BookingDTO> bookSeat(
+            @RequestBody BookingDTO bookingDTO,
+            Authentication authentication
+    ) {
+        String userEmail = authentication.getName(); // extracted from JWT
+
+        Booking savedBooking =
+                bookingService.bookSeat(bookingDTO, userEmail);
+
         return ResponseEntity.ok(bookingMapper.toDTO(savedBooking));
     }
 
-    // Cancel a booking (user NOT allowed to cancel within 2 hours of the booking start time)
+    // ======================================
+    // Cancel a booking (2-hour restriction)
+    // ======================================
     @DeleteMapping("/{id}")
     public ResponseEntity<?> cancelBooking(@PathVariable Long id) {
         try {
@@ -46,31 +57,45 @@ public class BookingController {
         }
     }
 
-    // Get all available seats on a specific date
+    // ======================================
+    // Get available seats on a specific date
+    // ======================================
     @GetMapping("/available-seats")
-    public ResponseEntity<List<Seat>> getAvailableSeatsOnDate(@RequestParam("date") String date) {
+    public ResponseEntity<List<Seat>> getAvailableSeatsOnDate(
+            @RequestParam("date") String date
+    ) {
         LocalDate localDate = LocalDate.parse(date);
-        return ResponseEntity.ok(bookingService.getAvailableSeatsOnDate(localDate));
+        return ResponseEntity.ok(
+                bookingService.getAvailableSeatsOnDate(localDate)
+        );
     }
 
+    // ======================
     // Get all bookings
+    // ======================
     @GetMapping
     public ResponseEntity<List<BookingDTO>> getAllBookings() {
         List<Booking> bookings = bookingService.getAllBookings();
+
         List<BookingDTO> bookingDTOs = bookings.stream()
                 .map(bookingMapper::toDTO)
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(bookingDTOs);
     }
 
-    // Get list of 30-minute time slots for a seat on a specific date
+    // ==================================================
+    // Get 30-min time slots for a seat on a given date
+    // ==================================================
     @GetMapping("/seat/{seatId}/timeslots")
     public ResponseEntity<List<TimeSlotStatus>> getTimeSlotsForSeat(
             @PathVariable Long seatId,
             @RequestParam("date") String date
     ) {
         LocalDate localDate = LocalDate.parse(date);
-        List<TimeSlotStatus> slots = bookingService.getTimeSlotStatusForSeat(seatId, localDate);
+        List<TimeSlotStatus> slots =
+                bookingService.getTimeSlotStatusForSeat(seatId, localDate);
+
         return ResponseEntity.ok(slots);
     }
 }

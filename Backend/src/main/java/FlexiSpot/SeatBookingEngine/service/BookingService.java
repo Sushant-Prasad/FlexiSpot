@@ -1,5 +1,6 @@
 package FlexiSpot.SeatBookingEngine.service;
 
+import FlexiSpot.SeatBookingEngine.DTO.BookingDTO;
 import FlexiSpot.SeatBookingEngine.DTO.TimeSlotStatus;
 import FlexiSpot.SeatBookingEngine.model.Booking;
 import FlexiSpot.SeatBookingEngine.model.BookingStatus;
@@ -30,42 +31,59 @@ public class BookingService {
     @Autowired
     private UserRepo userRepo;
 
-    // Book a seat with conflict validation
-    public Booking bookSeat(Booking booking) {
-        Long seatId = booking.getSeat().getId();
-        Long userId = booking.getUser().getId();
-        LocalDate date = booking.getDate();
-        LocalTime startTime = booking.getStartTime();
-        LocalTime endTime = booking.getEndTime();
+    // ==================================================
+    // Book a seat (JWT-based user + conflict validation)
+    // ==================================================
+    public Booking bookSeat(BookingDTO dto, String userEmail) {
 
-        if (startTime == null || endTime == null || !startTime.isBefore(endTime)) {
+        // --------- Validate time ---------
+        if (dto.getStartTime() == null || dto.getEndTime() == null ||
+                !dto.getStartTime().isBefore(dto.getEndTime())) {
             throw new RuntimeException("❌ Invalid start or end time.");
         }
 
-        if (!isAlignedTo30Min(startTime) || !isAlignedTo30Min(endTime)) {
+        if (!isAlignedTo30Min(dto.getStartTime()) || !isAlignedTo30Min(dto.getEndTime())) {
             throw new RuntimeException("❌ Booking time must be aligned to 30-minute slots.");
         }
 
-        Seat seat = seatRepo.findById(seatId)
-                .orElseThrow(() -> new RuntimeException("Seat not found"));
-        User user = userRepo.findById(userId)
+        // --------- Fetch user from JWT ---------
+        User user = userRepo.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Conflict check with existing ACTIVE bookings
-        List<Booking> conflicts = bookingRepo
-                .findBySeatIdAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndStatus(
-                        seatId, date, endTime, startTime, BookingStatus.ACTIVE);
+        // --------- Fetch seat ---------
+        Seat seat = seatRepo.findById(dto.getSeatId())
+                .orElseThrow(() -> new RuntimeException("Seat not found"));
+
+        LocalDate date = dto.getDate();
+        LocalTime startTime = dto.getStartTime();
+        LocalTime endTime = dto.getEndTime();
+
+        // --------- Conflict check ---------
+        List<Booking> conflicts =
+                bookingRepo.findBySeatIdAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndStatus(
+                        seat.getId(),
+                        date,
+                        endTime,
+                        startTime,
+                        BookingStatus.ACTIVE
+                );
 
         if (!conflicts.isEmpty()) {
             throw new RuntimeException("❌ Seat is already booked for one or more selected slots.");
         }
 
+        // --------- Create booking ---------
+        Booking booking = new Booking();
         booking.setUser(user);
         booking.setSeat(seat);
+        booking.setDate(date);
+        booking.setStartTime(startTime);
+        booking.setEndTime(endTime);
         booking.setStatus(BookingStatus.ACTIVE);
 
-        // Mark seat unavailable if booking is for now
-        if (date.equals(LocalDate.now()) && startTime.isBefore(LocalTime.now().plusMinutes(30))) {
+        // --------- Update seat availability (if booking is immediate) ---------
+        if (date.equals(LocalDate.now())
+                && startTime.isBefore(LocalTime.now().plusMinutes(30))) {
             seat.setIsAvailable(false);
             seatRepo.save(seat);
         }
@@ -73,30 +91,40 @@ public class BookingService {
         return bookingRepo.save(booking);
     }
 
+    // 30-minute slot alignment check
     private boolean isAlignedTo30Min(LocalTime time) {
         return time.getMinute() == 0 || time.getMinute() == 30;
     }
 
-
-    // Cancel a booking (soft cancel with status)
+    // ======================================
+    // Cancel a booking (2-hour restriction)
+    // ======================================
     public void cancelBooking(Long bookingId) {
+
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime bookingStart = LocalDateTime.of(booking.getDate(), booking.getStartTime());
+        LocalDateTime bookingStart =
+                LocalDateTime.of(booking.getDate(), booking.getStartTime());
 
         if (now.plusHours(2).isAfter(bookingStart)) {
-            throw new IllegalStateException("You cannot cancel the booking within 2 hours of the time slot.");
+            throw new IllegalStateException(
+                    "You cannot cancel the booking within 2 hours of the time slot."
+            );
         }
 
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepo.save(booking);
 
-        // Update seat availability if no future active bookings
-        List<Booking> futureBookings = bookingRepo
-                .findBySeatIdAndDateAndStartTimeGreaterThanEqualAndStatus(
-                        booking.getSeat().getId(), LocalDate.now(), LocalTime.now(), BookingStatus.ACTIVE);
+        // --------- Restore seat availability if no future bookings ---------
+        List<Booking> futureBookings =
+                bookingRepo.findBySeatIdAndDateAndStartTimeGreaterThanEqualAndStatus(
+                        booking.getSeat().getId(),
+                        LocalDate.now(),
+                        LocalTime.now(),
+                        BookingStatus.ACTIVE
+                );
 
         if (futureBookings.isEmpty()) {
             Seat seat = booking.getSeat();
@@ -105,42 +133,65 @@ public class BookingService {
         }
     }
 
-    // Get available seats on a date
+    // ======================================
+    // Get available seats on a given date
+    // ======================================
     public List<Seat> getAvailableSeatsOnDate(LocalDate date) {
-        List<Booking> bookings = bookingRepo.findByDateAndStatus(date, BookingStatus.ACTIVE);
+
+        List<Booking> bookings =
+                bookingRepo.findByDateAndStatus(date, BookingStatus.ACTIVE);
+
         List<Long> bookedSeatIds = bookings.stream()
                 .map(b -> b.getSeat().getId())
                 .distinct()
                 .toList();
 
         return seatRepo.findAll().stream()
-                .filter(seat -> seat.getIsAvailable() && !bookedSeatIds.contains(seat.getId()))
+                .filter(seat ->
+                        seat.getIsAvailable()
+                                && !bookedSeatIds.contains(seat.getId())
+                )
                 .collect(Collectors.toList());
     }
 
+    // ======================================
     // Get all bookings
+    // ======================================
     public List<Booking> getAllBookings() {
         return bookingRepo.findAll();
     }
 
-    // Generate 30-min time slots with booking info
-    public List<TimeSlotStatus> getTimeSlotStatusForSeat(Long seatId, LocalDate date) {
-        List<Booking> bookings = bookingRepo.findBySeatIdAndDateAndStatus(seatId, date, BookingStatus.ACTIVE);
+    // ======================================
+    // Generate 30-min time slots for a seat
+    // ======================================
+    public List<TimeSlotStatus> getTimeSlotStatusForSeat(
+            Long seatId,
+            LocalDate date
+    ) {
+
+        List<Booking> bookings =
+                bookingRepo.findBySeatIdAndDateAndStatus(
+                        seatId,
+                        date,
+                        BookingStatus.ACTIVE
+                );
 
         List<TimeSlotStatus> timeSlots = new ArrayList<>();
+
         LocalTime slotStart = LocalTime.of(9, 0);
         LocalTime endTime = LocalTime.of(18, 0);
 
         while (slotStart.isBefore(endTime)) {
+
             LocalTime slotEnd = slotStart.plusMinutes(30);
 
             final LocalTime tempStart = slotStart;
             final LocalTime tempEnd = slotEnd;
 
             Booking matchedBooking = bookings.stream()
-                    .filter(booking ->
-                            booking.getStartTime().isBefore(tempEnd) &&
-                                    booking.getEndTime().isAfter(tempStart)
+                    .filter(b ->
+                            b.getStartTime().isBefore(tempEnd)
+                                    && b.getEndTime().isAfter(tempStart)
                     )
                     .findFirst()
                     .orElse(null);
@@ -153,7 +204,9 @@ public class BookingService {
                     tempEnd,
                     true,
                     matchedBooking.getId(),
-                    matchedBooking.getUser() != null ? matchedBooking.getUser().getName() : null
+                    matchedBooking.getUser() != null
+                            ? matchedBooking.getUser().getName()
+                            : null
             )
                     : new TimeSlotStatus(tempStart, tempEnd, false);
 
