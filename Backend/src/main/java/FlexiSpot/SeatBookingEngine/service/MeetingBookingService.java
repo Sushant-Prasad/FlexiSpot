@@ -37,7 +37,7 @@ public class MeetingBookingService {
     private MeetingBookingMapper mapper;
 
     // ==================================================
-    // Book a meeting room (JWT-based user)
+    // Book a meeting room
     // ==================================================
     public MeetingBookingDTO bookRoom(MeetingBookingDTO dto, String userEmail) {
 
@@ -60,7 +60,7 @@ public class MeetingBookingService {
         }
 
         if (startTime.getMinute() != 0) {
-            throw new RuntimeException("❌ Booking time must align to hourly slots.");
+            throw new RuntimeException("❌ Booking must start on full hour.");
         }
 
         boolean conflict = !meetingBookingRepo
@@ -72,7 +72,7 @@ public class MeetingBookingService {
                 ).isEmpty();
 
         if (conflict) {
-            throw new RuntimeException("❌ Room already booked for the selected time slot.");
+            throw new RuntimeException("❌ Room already booked for this slot.");
         }
 
         MeetingBooking booking = new MeetingBooking();
@@ -87,7 +87,7 @@ public class MeetingBookingService {
     }
 
     // ==================================================
-    // Cancel meeting booking (3-hour restriction) ✅
+    // Cancel meeting booking (3-hour rule) ✅ FIXED
     // ==================================================
     public void cancelMeetingBooking(Long bookingId) {
 
@@ -102,7 +102,6 @@ public class MeetingBookingService {
         LocalDateTime cancelDeadline = bookingStart.minusHours(3);
         LocalDateTime now = LocalDateTime.now(indiaZone);
 
-        // 🚫 3-hour restriction
         if (!now.isBefore(cancelDeadline)) {
             throw new IllegalStateException(
                     "❌ You cannot cancel the meeting room within 3 hours of the start time."
@@ -112,27 +111,25 @@ public class MeetingBookingService {
         booking.setStatus(BookingStatus.CANCELLED);
         meetingBookingRepo.save(booking);
 
+        // 🔥 SAME LOGIC AS SEAT BOOKING
         MeetingRoom room = booking.getRoom();
-
-        // ✅ CHECK FUTURE BOOKINGS CORRECTLY
-        LocalDate today = LocalDate.now(indiaZone);
-        LocalTime nowTime = LocalTime.now(indiaZone);
+        LocalDate bookingDate = booking.getDate();
+        LocalTime bookingStartTime = booking.getStartTime();
 
         boolean hasFutureBookings = meetingBookingRepo
                 .findByRoomIdAndDateAndStatus(
                         room.getId(),
-                        today,
+                        bookingDate,
                         BookingStatus.ACTIVE
                 )
                 .stream()
-                .anyMatch(b -> b.getEndTime().isAfter(nowTime));
+                .anyMatch(b -> b.getEndTime().isAfter(bookingStartTime));
 
         if (!hasFutureBookings) {
             room.setIsAvailable(true);
             meetingRoomRepo.save(room);
         }
     }
-
 
     // ==================================================
     // Get all bookings
@@ -145,7 +142,7 @@ public class MeetingBookingService {
     }
 
     // ==================================================
-    // Get 1-hour time slot status
+    // Get 1-hour time slots
     // ==================================================
     public List<TimeSlotStatus> getTimeSlotsForMeetingRoom(Long roomId, LocalDate date) {
 
