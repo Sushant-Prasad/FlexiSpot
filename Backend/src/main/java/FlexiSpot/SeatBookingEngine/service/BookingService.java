@@ -107,8 +107,10 @@ public class BookingService {
         LocalDateTime bookingStart =
                 LocalDateTime.of(booking.getDate(), booking.getStartTime());
 
-        // ✅ CORRECT & SAFE 2-hour restriction
-        if (LocalDateTime.now().isAfter(bookingStart.minusHours(2))) {
+        LocalDateTime cancelDeadline = bookingStart.minusHours(2);
+
+        // 🚫 BLOCK cancellation at or after deadline
+        if (!LocalDateTime.now().isBefore(cancelDeadline)) {
             throw new IllegalStateException(
                     "❌ You cannot cancel the booking within 2 hours of the start time."
             );
@@ -117,21 +119,23 @@ public class BookingService {
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepo.save(booking);
 
-        // --------- Restore seat availability if no future active bookings ---------
-        List<Booking> futureBookings =
-                bookingRepo.findBySeatIdAndDateAndStartTimeGreaterThanEqualAndStatus(
+        // Restore seat only if no future ACTIVE bookings exist
+        boolean hasFutureBookings = bookingRepo
+                .findBySeatIdAndDateAndStatus(
                         booking.getSeat().getId(),
-                        LocalDate.now(),
-                        LocalTime.now(),
+                        booking.getDate(),
                         BookingStatus.ACTIVE
-                );
+                )
+                .stream()
+                .anyMatch(b -> b.getEndTime().isAfter(booking.getStartTime()));
 
-        if (futureBookings.isEmpty()) {
+        if (!hasFutureBookings) {
             Seat seat = booking.getSeat();
             seat.setIsAvailable(true);
             seatRepo.save(seat);
         }
     }
+
 
     // ======================================
     // Get available seats on a given date
