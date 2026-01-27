@@ -104,20 +104,20 @@ public class BookingService {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        LocalDateTime now = LocalDateTime.now();
         LocalDateTime bookingStart =
                 LocalDateTime.of(booking.getDate(), booking.getStartTime());
 
-        if (now.plusHours(2).isAfter(bookingStart)) {
+        // ✅ CORRECT & SAFE 2-hour restriction
+        if (LocalDateTime.now().isAfter(bookingStart.minusHours(2))) {
             throw new IllegalStateException(
-                    "You cannot cancel the booking within 2 hours of the time slot."
+                    "❌ You cannot cancel the booking within 2 hours of the start time."
             );
         }
 
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepo.save(booking);
 
-        // --------- Restore seat availability if no future bookings ---------
+        // --------- Restore seat availability if no future active bookings ---------
         List<Booking> futureBookings =
                 bookingRepo.findBySeatIdAndDateAndStartTimeGreaterThanEqualAndStatus(
                         booking.getSeat().getId(),
@@ -204,9 +204,7 @@ public class BookingService {
                     tempEnd,
                     true,
                     matchedBooking.getId(),
-                    matchedBooking.getUser() != null
-                            ? matchedBooking.getUser().getName()
-                            : null
+                    matchedBooking.getUser().getName()
             )
                     : new TimeSlotStatus(tempStart, tempEnd, false);
 
