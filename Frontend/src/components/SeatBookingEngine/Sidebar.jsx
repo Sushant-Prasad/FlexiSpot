@@ -71,7 +71,7 @@ const Sidebar = ({ onApplyFilters }) => {
   };
 
   const locations = ["Delhi", "Mumbai", "Pune", "Bangalore", "Hyderabad", "Other"];
-  const buildings = ["A", "B", "C", "D", "D", "Other"];
+  const buildings = ["A", "B", "C", "D", "E", "Other"];
   const floors = ["G", "1", "2", "3", "4", "Other"];
   const segments = ["South", "North", "East", "West", "Other"];
 
