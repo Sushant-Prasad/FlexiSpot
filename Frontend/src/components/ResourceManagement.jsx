@@ -325,7 +325,7 @@ const ResourceManagement = () => {
                     setItemToDelete(null);
                 }}
                 title="Confirm Delete"
-                message={`Are you sure you want to delete this ${activeTab === 'seats' ? 'desk' : 'meeting room'}? This action cannot be undone.`}
+                message={`Are you sure you want to delete this ${activeTab === 'seats' ? 'seats' : 'meeting room'}? This action cannot be undone.`}
                 type="danger"
                 onConfirm={handleDeleteConfirm}
             />
@@ -351,7 +351,7 @@ const ResourceManagement = () => {
                         : 'bg-white text-gray-700 hover:bg-gray-100'
                         }`}
                 >
-                    Desks ({seats.length})
+                    Seats ({seats.length})
                 </button>
                 <button
                     onClick={() => setActiveTab('meeting-rooms')}
@@ -375,7 +375,7 @@ const ResourceManagement = () => {
                         className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
                     >
                         <FiPlus />
-                        <span>Add New {activeTab === 'seats' ? 'Desk' : 'Meeting Room'}</span>
+                        <span>Add New {activeTab === 'seats' ? 'Seats' : 'Meeting Room'}</span>
                     </button>
                     <button
                         onClick={() => setShowFilters(!showFilters)}
@@ -455,12 +455,12 @@ const ResourceManagement = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
                         <h2 className="text-xl font-semibold mb-4">
-                            {editingItem ? 'Edit' : 'Add'} {activeTab === 'seats' ? 'Desk' : 'Meeting Room'}
+                            {editingItem ? 'Edit' : 'Add'} {activeTab === 'seats' ? 'Seat' : 'Meeting Room'}
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1">
-                                    {activeTab === 'seats' ? 'Desk Code' : 'Room Code'}
+                                    {activeTab === 'seats' ? 'Seat Code' : 'Room Code'}
                                 </label>
                                 <input
                                     type="text"
@@ -557,7 +557,7 @@ const ResourceManagement = () => {
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    {activeTab === 'seats' ? 'Desk Code' : 'Room Code'}
+                                    {activeTab === 'seats' ? 'Seat Code' : 'Room Code'}
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Location
@@ -635,7 +635,7 @@ const ResourceManagement = () => {
                 </div>
                 {currentData.length === 0 && !loading && (
                     <div className="text-center py-8 text-gray-500">
-                        No {activeTab === 'seats' ? 'desks' : 'meeting rooms'} found.
+                        No {activeTab === 'seats' ? 'seats' : 'meeting rooms'} found.
                     </div>
                 )}
             </div>

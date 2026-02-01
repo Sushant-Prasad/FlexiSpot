@@ -89,7 +89,7 @@ function AdminDashboard() {
                             <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-medium text-gray-600">Total Desks</p>
+                                        <p className="text-sm font-medium text-gray-600">Total Seat</p>
                                         <p className="text-2xl font-bold text-gray-900">
                                             {loading ? '...' : analyticsData.totalSeats}
                                         </p>
@@ -98,7 +98,7 @@ function AdminDashboard() {
                                         <FiUsers className="text-blue-600 text-xl" />
                                     </div>
                                 </div>
-                                <p className="text-xs text-gray-500 mt-2">Available desks in the office</p>
+                                <p className="text-xs text-gray-500 mt-2">Available seat in the office</p>
                             </div>
 
                             <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">

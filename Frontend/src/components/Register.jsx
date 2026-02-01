@@ -127,8 +127,7 @@ function Register() {
                 className="w-full border border-gray-300 px-3 py-2 rounded-lg outline-none bg-gray-50 focus:border-blue-500 text-gray-900"
               >
                 <option value="">Select your role</option>
-                <option value="employee">Employee - Book desks and meeting rooms</option>
-                <option value="admin">Admin - Manage system and view analytics</option>
+                <option value="employee">Employee - Book seats and meeting rooms</option>
               </select>
             </div>
             <div>

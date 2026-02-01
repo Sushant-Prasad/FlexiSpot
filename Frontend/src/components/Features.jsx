@@ -10,8 +10,8 @@ const features = [
     icon: <FaCalendarAlt className="text-blue-600" size={40} />
   },
   {
-    title: 'Desk Reservation',
-    description: 'Book desks in advance and avoid workplace hassle.',
+    title: 'Seat Reservation',
+    description: 'Book seats in advance and avoid workplace hassle.',
     icon: <MdEventSeat className="text-blue-600" size={40} />
   },
   {

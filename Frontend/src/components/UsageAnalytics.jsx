@@ -339,10 +339,10 @@ function UsageAnalytics() {
                 <Bar data={peakHoursData} options={chartOptions} height={100} />
             </div>
 
-            {/* Top Used Desks/Rooms Table */}
+            {/* Top Used seats/Rooms Table */}
             <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
                 <h2 className="text-xl font-semibold text-blue-800 mb-4">
-                    Top Used Desks/Rooms for {selectedDate}
+                    Top Used seatss/Rooms for {selectedDate}
                 </h2>
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">

@@ -11,7 +11,7 @@ const Hero = () => {
           Transform the Way You Work
         </h1>
         <p className="text-lg md:text-xl text-gray-600 mb-8">
-          Smart desk reservations and seamless scheduling for modern workplaces.
+          Smart seat reservations and seamless scheduling for modern workplaces.
         </p>
         <Link
           to="/login"
