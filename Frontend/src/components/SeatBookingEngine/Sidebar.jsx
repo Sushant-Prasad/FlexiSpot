@@ -71,9 +71,9 @@ const Sidebar = ({ onApplyFilters }) => {
   };
 
   const locations = ["Delhi", "Mumbai", "Pune", "Bangalore", "Hyderabad", "Other"];
-  const buildings = ["Building A", "Building B", "Building C", "Main Office", "Annex", "Other"];
-  const floors = ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "Other"];
-  const segments = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Other"];
+  const buildings = ["A", "B", "C", "D", "D", "Other"];
+  const floors = ["G", "1", "2", "3", "4", "Other"];
+  const segments = ["South", "North", "East", "West", "Other"];
 
   const renderDropdown = (
     label,
