@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,83 +36,88 @@ public class MeetingBookingService {
     @Autowired
     private MeetingBookingMapper mapper;
 
-    // Book a meeting room with validations
-    public MeetingBookingDTO bookRoom(MeetingBookingDTO dto) {
-        MeetingBooking booking = mapper.toEntity(dto);
+    // ==================================================
+    // Book a meeting room
+    // ==================================================
+    public MeetingBookingDTO bookRoom(MeetingBookingDTO dto, String userEmail) {
 
-        Long roomId = booking.getRoom().getId();
-        Long userId = booking.getUser().getId();
-        LocalDate date = booking.getDate();
-        LocalTime startTime = booking.getStartTime();
-        LocalTime endTime = booking.getEndTime();
+        User user = userRepo.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Validate times
+        MeetingRoom room = meetingRoomRepo.findById(dto.getMeetingRoomId())
+                .orElseThrow(() -> new RuntimeException("Meeting room not found"));
+
+        LocalDate date = dto.getDate();
+        LocalTime startTime = dto.getStartTime();
+        LocalTime endTime = dto.getEndTime();
+
         if (startTime == null || endTime == null || !startTime.isBefore(endTime)) {
             throw new RuntimeException("❌ Invalid start or end time.");
         }
 
-        // Booking must be exactly 1 hour
         if (!startTime.plusHours(1).equals(endTime)) {
             throw new RuntimeException("❌ Meeting room bookings must be exactly 1 hour.");
         }
 
-        // Must be aligned to full hours (e.g., 9:00, 10:00)
-        if (startTime.getMinute() != 0 || endTime.getMinute() != 0) {
-            throw new RuntimeException("❌ Booking time must align to hourly slots (e.g., 10:00 to 11:00).");
+        if (startTime.getMinute() != 0) {
+            throw new RuntimeException("❌ Booking must start on full hour.");
         }
 
-        // Conflict check
-        boolean isConflict = !meetingBookingRepo
-                .findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
-                        roomId, date, endTime, startTime
+        // ✅ ONLY ACTIVE bookings block availability
+        boolean conflict = !meetingBookingRepo
+                .findByRoomIdAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndStatus(
+                        room.getId(),
+                        date,
+                        endTime,
+                        startTime,
+                        BookingStatus.ACTIVE
                 ).isEmpty();
 
-        if (isConflict) {
-            throw new RuntimeException("❌ Room already booked for the selected time slot.");
+        if (conflict) {
+            throw new RuntimeException("❌ Room already booked for this slot.");
         }
 
-        // Fetch room & user
-        MeetingRoom room = meetingRoomRepo.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("Room not found"));
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        booking.setRoom(room);
+        MeetingBooking booking = new MeetingBooking();
         booking.setUser(user);
+        booking.setRoom(room);
+        booking.setDate(date);
+        booking.setStartTime(startTime);
+        booking.setEndTime(endTime);
         booking.setStatus(BookingStatus.ACTIVE);
 
-        MeetingBooking saved = meetingBookingRepo.save(booking);
-        return mapper.toDTO(saved);
+        return mapper.toDTO(meetingBookingRepo.save(booking));
     }
 
-    // Cancel a booking (not allowed within 3 hours of start)
+    // ==================================================
+    // Cancel meeting booking (3-hour rule)
+    // ==================================================
     public void cancelMeetingBooking(Long bookingId) {
+
         MeetingBooking booking = meetingBookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime bookingStart = LocalDateTime.of(booking.getDate(), booking.getStartTime());
+        ZoneId indiaZone = ZoneId.of("Asia/Kolkata");
 
-        if (now.plusHours(3).isAfter(bookingStart)) {
-            throw new IllegalStateException("❌ Cannot cancel meeting within 3 hours of start time.");
+        LocalDateTime bookingStart =
+                LocalDateTime.of(booking.getDate(), booking.getStartTime());
+
+        LocalDateTime cancelDeadline = bookingStart.minusHours(3);
+        LocalDateTime now = LocalDateTime.now(indiaZone);
+
+        if (!now.isBefore(cancelDeadline)) {
+            throw new IllegalStateException(
+                    "❌ You cannot cancel the meeting room within 3 hours of the start time."
+            );
         }
 
+        // ✅ JUST CANCEL — NO availability logic
         booking.setStatus(BookingStatus.CANCELLED);
         meetingBookingRepo.save(booking);
-
-        MeetingRoom room = booking.getRoom();
-        boolean hasOtherActiveBookings = meetingBookingRepo
-                .findByRoomIdAndDateAndStatus(room.getId(), LocalDate.now(), BookingStatus.ACTIVE)
-                .stream()
-                .anyMatch(b -> b.getEndTime().isAfter(LocalTime.now()));
-
-        if (!hasOtherActiveBookings) {
-            room.setIsAvailable(true);
-            meetingRoomRepo.save(room);
-        }
     }
 
+    // ==================================================
     // Get all bookings
+    // ==================================================
     public List<MeetingBookingDTO> getAllBookings() {
         return meetingBookingRepo.findAll()
                 .stream()
@@ -119,34 +125,46 @@ public class MeetingBookingService {
                 .collect(Collectors.toList());
     }
 
-    // Get 1-hour time slot status for a meeting room
+    // ==================================================
+    // Get 1-hour time slots (SOURCE OF TRUTH)
+    // ==================================================
     public List<TimeSlotStatus> getTimeSlotsForMeetingRoom(Long roomId, LocalDate date) {
-        List<MeetingBooking> bookings = meetingBookingRepo.findByRoomIdAndDate(roomId, date);
+
+        // ✅ ONLY ACTIVE bookings
+        List<MeetingBooking> bookings =
+                meetingBookingRepo.findByRoomIdAndDateAndStatus(
+                        roomId,
+                        date,
+                        BookingStatus.ACTIVE
+                );
+
         List<TimeSlotStatus> timeSlots = new ArrayList<>();
 
-        LocalTime start = LocalTime.of(9, 0); // Working hours start
-        LocalTime end = LocalTime.of(18, 0);  // Working hours end
+        LocalTime start = LocalTime.of(9, 0);
+        LocalTime end = LocalTime.of(18, 0);
 
         while (start.isBefore(end)) {
             LocalTime slotEnd = start.plusHours(1);
             final LocalTime slotStart = start;
-            final LocalTime slotEndCopy = slotEnd;
 
             MeetingBooking matched = bookings.stream()
-                    .filter(b -> b.getStartTime().isBefore(slotEndCopy) && b.getEndTime().isAfter(slotStart))
+                    .filter(b ->
+                            b.getStartTime().isBefore(slotEnd)
+                                    && b.getEndTime().isAfter(slotStart)
+                    )
                     .findFirst()
                     .orElse(null);
 
             if (matched != null) {
                 timeSlots.add(new TimeSlotStatus(
                         slotStart,
-                        slotEndCopy,
+                        slotEnd,
                         true,
                         matched.getId(),
                         matched.getUser().getName()
                 ));
             } else {
-                timeSlots.add(new TimeSlotStatus(slotStart, slotEndCopy, false));
+                timeSlots.add(new TimeSlotStatus(slotStart, slotEnd, false));
             }
 
             start = slotEnd;

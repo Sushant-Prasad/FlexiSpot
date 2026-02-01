@@ -1,8 +1,9 @@
 package FlexiSpot.SeatBookingEngine.config;
 
-import FlexiSpot.SeatBookingEngine.filter.JwtRequestFilter; // ✅ updated import
+import FlexiSpot.SeatBookingEngine.filter.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,19 +15,30 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter)
+            throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+
+                        // Preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Public
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/seats/**").permitAll()
+                        .requestMatchers("/api/meeting-rooms/**").permitAll()
+
+                        // 🔐 PROTECTED (VERY IMPORTANT)
+                        .requestMatchers("/api/bookings/**").authenticated()
+                        .requestMatchers("/api/meeting-bookings/**").authenticated()
 
                         .anyRequest().authenticated()
                 )
@@ -34,6 +46,7 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable());
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
@@ -44,9 +57,15 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("https://flexispot.onrender.com"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        configuration.setAllowedOriginPatterns(
+                List.of("https://flexispot.onrender.com")
+        );
+        configuration.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        );
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
@@ -55,3 +74,4 @@ public class SecurityConfig {
         return source;
     }
 }
+
